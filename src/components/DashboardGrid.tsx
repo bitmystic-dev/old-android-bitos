@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 // @ts-ignore - types in @types/react-grid-layout v2 are stale
-import RGL, { Responsive, WidthProvider } from "react-grid-layout";
+import { Responsive as ResponsiveGridLayout } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,7 +16,7 @@ import { ScheduleWidget } from "@/widgets/ScheduleWidget";
 import { InspirationWidget } from "@/widgets/InspirationWidget";
 import { Plus, X, ChevronDown, ChevronUp, GripVertical, RotateCcw, Edit3 } from "lucide-react";
 
-const ResponsiveGrid: any = WidthProvider(Responsive);
+const ResponsiveGrid: any = ResponsiveGridLayout;
 
 type WidgetId = "clock" | "stats" | "quote" | "tasks" | "schedule" | "habits" | "music" | "notes" | "inspiration";
 type LayoutItem = { i: string; x: number; y: number; w: number; h: number; minW?: number; minH?: number };
