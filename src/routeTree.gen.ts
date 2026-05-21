@@ -9,7 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SudoRouteImport } from './routes/sudo'
 import { Route as PoweredOffRouteImport } from './routes/powered-off'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -24,9 +24,9 @@ import { Route as AuthenticatedHabitsRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedCodeRouteImport } from './routes/_authenticated/code'
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
+const SudoRoute = SudoRouteImport.update({
+  id: '/sudo',
+  path: '/sudo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PoweredOffRoute = PoweredOffRouteImport.update({
@@ -99,7 +99,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
   '/powered-off': typeof PoweredOffRoute
-  '/signup': typeof SignupRoute
+  '/sudo': typeof SudoRoute
   '/ai': typeof AuthenticatedAiRoute
   '/code': typeof AuthenticatedCodeRoute
   '/habits': typeof AuthenticatedHabitsRoute
@@ -113,7 +113,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/powered-off': typeof PoweredOffRoute
-  '/signup': typeof SignupRoute
+  '/sudo': typeof SudoRoute
   '/ai': typeof AuthenticatedAiRoute
   '/code': typeof AuthenticatedCodeRoute
   '/habits': typeof AuthenticatedHabitsRoute
@@ -130,7 +130,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/powered-off': typeof PoweredOffRoute
-  '/signup': typeof SignupRoute
+  '/sudo': typeof SudoRoute
   '/_authenticated/ai': typeof AuthenticatedAiRoute
   '/_authenticated/code': typeof AuthenticatedCodeRoute
   '/_authenticated/habits': typeof AuthenticatedHabitsRoute
@@ -148,7 +148,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/powered-off'
-    | '/signup'
+    | '/sudo'
     | '/ai'
     | '/code'
     | '/habits'
@@ -162,7 +162,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/powered-off'
-    | '/signup'
+    | '/sudo'
     | '/ai'
     | '/code'
     | '/habits'
@@ -178,7 +178,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/powered-off'
-    | '/signup'
+    | '/sudo'
     | '/_authenticated/ai'
     | '/_authenticated/code'
     | '/_authenticated/habits'
@@ -195,16 +195,16 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   PoweredOffRoute: typeof PoweredOffRoute
-  SignupRoute: typeof SignupRoute
+  SudoRoute: typeof SudoRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
+    '/sudo': {
+      id: '/sudo'
+      path: '/sudo'
+      fullPath: '/sudo'
+      preLoaderRoute: typeof SudoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/powered-off': {
@@ -335,8 +335,18 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   PoweredOffRoute: PoweredOffRoute,
-  SignupRoute: SignupRoute,
+  SudoRoute: SudoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

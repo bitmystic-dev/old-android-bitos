@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { Terminal } from "lucide-react";
 
-export const Route = createFileRoute("/signup")({
+export const Route = createFileRoute("/sudo")({
   beforeLoad: () => {
     if (typeof window !== "undefined" && getSession()) throw redirect({ to: "/" });
   },
