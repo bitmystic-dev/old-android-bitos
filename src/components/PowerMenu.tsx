@@ -47,7 +47,7 @@ export function PowerMenu() {
         <Power className="h-4 w-4" />
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-60 bitos-window p-2 z-50 origin-top-right animate-in fade-in slide-in-from-top-2">
+        <div className="absolute right-0 mt-2 w-60 bitos-window p-2 z-[100] shadow-2xl origin-top-right animate-in fade-in slide-in-from-top-2">
           <div className="bitos-titlebar -mx-2 -mt-2 mb-2 text-xs">power.sys</div>
           <div className="space-y-0.5">
             {fs ? (
