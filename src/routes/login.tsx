@@ -85,6 +85,16 @@ function LoginPage() {
               />
             </label>
 
+            <label className="flex items-center gap-2 text-xs font-mono opacity-80 select-none cursor-pointer">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="h-3.5 w-3.5 accent-primary"
+              />
+              <span>remember this terminal</span>
+            </label>
+
             {err && (
               <div className="text-xs font-mono text-destructive bg-destructive/10 border border-destructive/30 rounded px-3 py-2">
                 ! {err}
