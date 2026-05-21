@@ -120,17 +120,13 @@ export function Sidebar({
         {!collapsed && (
           <div className="font-mono text-[11px] leading-tight text-foreground/75 overflow-hidden whitespace-nowrap w-full">
             <div className="flex items-center overflow-hidden">
-              <span className="animate-pulse mr-1 text-primary shrink-0">
-                █
-              </span>
-
               <span className="terminal-typing">
-                root@bit-os:~# creator
+                root@bit-os:~# whos
               </span>
             </div>
 
             <div className="terminal-result opacity-80 pl-[10px]">
-              Sai Pranav // BitMystic
+              Sai Pranav (a.k.a BitMystic)
             </div>
           </div>
         )}
