@@ -1,11 +1,7 @@
 /**
- * BitOS Auth
- * --------------------------------------------------------------
- * Works out of the box with a secure-ish localStorage backend so
- * the experience is "real" from second one. You can swap in
- * Firebase Authentication by populating the VITE_FIREBASE_* env
- * vars — see firebase.ts. When Firebase is configured, the
- * AuthContext switches over automatically.
+ * BitOS Auth — local-first.
+ * Sessions can be persistent ("Remember Me") via localStorage or
+ * ephemeral via sessionStorage (clears when browser closes).
  */
 
 export type BitUser = {
@@ -45,25 +41,38 @@ function writeUsers(users: StoredUser[]) {
 export function getSession(): BitUser | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem(SESSION_KEY);
+    const raw =
+      localStorage.getItem(SESSION_KEY) ||
+      sessionStorage.getItem(SESSION_KEY);
     return raw ? (JSON.parse(raw) as BitUser) : null;
   } catch {
     return null;
   }
 }
 
-function setSession(u: BitUser | null) {
-  if (!u) localStorage.removeItem(SESSION_KEY);
-  else localStorage.setItem(SESSION_KEY, JSON.stringify(u));
+function setSession(u: BitUser | null, remember = true) {
+  // clear both first to avoid drift
+  localStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
+  if (u) {
+    const store = remember ? localStorage : sessionStorage;
+    store.setItem(SESSION_KEY, JSON.stringify(u));
+  }
   window.dispatchEvent(new Event("bitos:auth"));
 }
 
-export async function signUp(email: string, password: string, displayName?: string): Promise<BitUser> {
+export async function signUp(
+  email: string,
+  password: string,
+  displayName?: string,
+  remember = true,
+): Promise<BitUser> {
   email = email.trim().toLowerCase();
   if (!email || !password) throw new Error("Email and password required");
   if (password.length < 6) throw new Error("Password must be at least 6 characters");
   const users = readUsers();
-  if (users.find((u) => u.email === email)) throw new Error("An operator with this email already exists");
+  if (users.find((u) => u.email === email))
+    throw new Error("An operator with this email already exists");
   const user: StoredUser = {
     id: crypto.randomUUID(),
     email,
@@ -73,11 +82,15 @@ export async function signUp(email: string, password: string, displayName?: stri
   };
   writeUsers([...users, user]);
   const { passwordHash, ...pub } = user;
-  setSession(pub);
+  setSession(pub, remember);
   return pub;
 }
 
-export async function signIn(email: string, password: string): Promise<BitUser> {
+export async function signIn(
+  email: string,
+  password: string,
+  remember = true,
+): Promise<BitUser> {
   email = email.trim().toLowerCase();
   const users = readUsers();
   const user = users.find((u) => u.email === email);
@@ -85,7 +98,7 @@ export async function signIn(email: string, password: string): Promise<BitUser> 
   const ph = await hash(password);
   if (user.passwordHash !== ph) throw new Error("Incorrect password");
   const { passwordHash, ...pub } = user;
-  setSession(pub);
+  setSession(pub, remember);
   return pub;
 }
 
