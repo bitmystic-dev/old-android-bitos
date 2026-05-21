@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Search, Bell, Palette, Menu } from "lucide-react";
+import { Bell, Palette, Menu } from "lucide-react";
 import { useTheme, THEMES, type ThemeName } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { PowerMenu } from "@/components/PowerMenu";
+import { GlobalSearch } from "@/components/GlobalSearch";
 
 export function TopBar({ onMobileMenu }: { onMobileMenu: () => void }) {
   const { theme, setTheme } = useTheme();
@@ -22,14 +23,7 @@ export function TopBar({ onMobileMenu }: { onMobileMenu: () => void }) {
         <Menu className="h-4 w-4" />
       </button>
 
-      <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-secondary/60 flex-1 max-w-md">
-        <Search className="h-4 w-4 opacity-60" />
-        <input
-          placeholder="search bitos…"
-          className="bg-transparent outline-none text-sm flex-1 placeholder:opacity-60 min-w-0"
-        />
-        <kbd className="hidden sm:inline text-[10px] font-mono opacity-60 border border-border rounded px-1.5 py-0.5">⌘K</kbd>
-      </div>
+      <GlobalSearch />
 
       <div className="ml-auto flex items-center gap-2">
         <div className="hidden sm:flex items-center gap-3 font-mono text-xs opacity-80 min-w-[110px] justify-end">

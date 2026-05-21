@@ -1,11 +1,10 @@
 /**
- * BitOS shared data store
- * ------------------------
- * Per-user persisted store using Zustand. Powers tasks, habits,
- * planner events, notes. Every module reads from here so the
- * dashboard reflects real user data instantly.
+ * BitOS shared data store — Firestore-backed, real-time per user.
+ * Single doc per user at users/{uid} holding {tasks, habits, events, notes}.
  */
 import { create } from "zustand";
+import { doc, onSnapshot, setDoc, type Unsubscribe } from "firebase/firestore";
+import { getFbDb } from "./firebase";
 
 export type Priority = "low" | "medium" | "high" | "na";
 export type TaskStatus = "todo" | "in_progress" | "review" | "done";
@@ -14,7 +13,7 @@ export type Task = {
   id: string;
   title: string;
   description?: string;
-  dueDate?: string; // ISO date (YYYY-MM-DD)
+  dueDate?: string;
   priority: Priority;
   category?: string;
   status: TaskStatus;
@@ -27,14 +26,14 @@ export type Habit = {
   name: string;
   color?: string;
   createdAt: number;
-  history: Record<string, boolean>; // { "2026-05-21": true }
+  history: Record<string, boolean>;
 };
 
 export type PlannerEvent = {
   id: string;
   title: string;
-  date: string; // ISO date YYYY-MM-DD
-  time?: string; // HH:MM
+  date: string;
+  time?: string;
   tag?: string;
 };
 
@@ -47,6 +46,7 @@ type Data = {
 
 type State = Data & {
   userId: string | null;
+  syncing: boolean;
   hydrate: (userId: string | null) => void;
 
   addTask: (t: Omit<Task, "id" | "createdAt" | "status"> & { status?: TaskStatus }) => Task;
@@ -65,39 +65,64 @@ type State = Data & {
 };
 
 const EMPTY: Data = { tasks: [], habits: [], events: [], notes: "" };
-const KEY = (id: string) => `bitos.data.${id}`;
 
-function load(userId: string | null): Data {
-  if (!userId || typeof window === "undefined") return EMPTY;
-  try {
-    const raw = localStorage.getItem(KEY(userId));
-    if (!raw) return EMPTY;
-    return { ...EMPTY, ...JSON.parse(raw) };
-  } catch {
-    return EMPTY;
-  }
+let unsub: Unsubscribe | null = null;
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let skipNextSnapshot = false;
+
+function userDoc(uid: string) {
+  return doc(getFbDb(), "users", uid);
 }
 
-function save(userId: string | null, data: Data) {
-  if (!userId || typeof window === "undefined") return;
-  try {
-    localStorage.setItem(KEY(userId), JSON.stringify(data));
-  } catch {}
+function scheduleSave(uid: string, data: Data) {
+  if (typeof window === "undefined") return;
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    skipNextSnapshot = true;
+    setDoc(userDoc(uid), { ...data, updatedAt: Date.now() }, { merge: true }).catch((e) => {
+      console.error("[bitos] firestore save failed", e);
+    });
+  }, 250);
 }
 
 export const useBitStore = create<State>((set, get) => {
   const persist = () => {
     const s = get();
-    save(s.userId, { tasks: s.tasks, habits: s.habits, events: s.events, notes: s.notes });
+    if (!s.userId) return;
+    scheduleSave(s.userId, { tasks: s.tasks, habits: s.habits, events: s.events, notes: s.notes });
   };
 
   return {
     userId: null,
+    syncing: false,
     ...EMPTY,
 
     hydrate: (userId) => {
-      const data = load(userId);
-      set({ userId, ...data });
+      if (unsub) { try { unsub(); } catch {} unsub = null; }
+      if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+      if (!userId || typeof window === "undefined") {
+        set({ userId: null, syncing: false, ...EMPTY });
+        return;
+      }
+      set({ userId, syncing: true, ...EMPTY });
+      unsub = onSnapshot(
+        userDoc(userId),
+        (snap) => {
+          if (skipNextSnapshot) { skipNextSnapshot = false; set({ syncing: false }); return; }
+          const d = snap.data() as Partial<Data> | undefined;
+          set({
+            tasks: d?.tasks ?? [],
+            habits: d?.habits ?? [],
+            events: d?.events ?? [],
+            notes: d?.notes ?? "",
+            syncing: false,
+          });
+        },
+        (err) => {
+          console.error("[bitos] firestore subscribe failed", err);
+          set({ syncing: false });
+        },
+      );
     },
 
     addTask: (t) => {
@@ -112,9 +137,7 @@ export const useBitStore = create<State>((set, get) => {
       return task;
     },
     updateTask: (id, patch) => {
-      set((s) => ({
-        tasks: s.tasks.map((x) => (x.id === id ? { ...x, ...patch } : x)),
-      }));
+      set((s) => ({ tasks: s.tasks.map((x) => (x.id === id ? { ...x, ...patch } : x)) }));
       persist();
     },
     deleteTask: (id) => {
@@ -151,9 +174,7 @@ export const useBitStore = create<State>((set, get) => {
     toggleHabitDay: (id, isoDate) => {
       set((s) => ({
         habits: s.habits.map((h) =>
-          h.id === id
-            ? { ...h, history: { ...h.history, [isoDate]: !h.history[isoDate] } }
-            : h
+          h.id === id ? { ...h, history: { ...h.history, [isoDate]: !h.history[isoDate] } } : h
         ),
       }));
       persist();

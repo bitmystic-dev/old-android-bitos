@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WallpaperBackground } from "@/components/WallpaperBackground";
 import { FullscreenManager } from "@/components/FullscreenManager";
+import { BootSequence } from "@/components/BootSequence";
 
 function NotFoundComponent() {
   return (
@@ -86,6 +87,7 @@ function RootComponent() {
           <WallpaperBackground />
           <Outlet />
           <FullscreenManager />
+          <BootSequence />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
