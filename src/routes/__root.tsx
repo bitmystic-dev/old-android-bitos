@@ -87,6 +87,7 @@ function RootComponent() {
           <WallpaperBackground />
           <Outlet />
           <FullscreenManager />
+          <BootSequence />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
