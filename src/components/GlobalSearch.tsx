@@ -70,10 +70,10 @@ export function GlobalSearch() {
           value={q}
           onChange={(e) => { setQ(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
-          placeholder="search bitos…"
+          placeholder="Search..."
           className="bg-transparent outline-none text-sm flex-1 placeholder:opacity-60 min-w-0"
         />
-        <kbd className="hidden sm:inline text-[10px] font-mono opacity-60 border border-border rounded px-1.5 py-0.5">⌘K</kbd>
+        <kbd className="hidden sm:inline text-[10px] font-mono opacity-60 border border-border rounded px-1.5 py-0.5">Ctrl / ⌘ + K</kbd>
       </div>
       {open && (
         <div className="absolute left-0 right-0 mt-2 bitos-window p-1 z-[100] shadow-2xl max-h-[60vh] overflow-y-auto">
