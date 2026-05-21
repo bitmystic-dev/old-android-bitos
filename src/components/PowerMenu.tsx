@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+
 import {
   Power,
   Maximize2,
@@ -18,9 +19,15 @@ import {
   isFullscreen,
 } from "@/lib/fullscreen";
 
+import { getVersion } from "@/lib/version";
+
 export function PowerMenu() {
   const [open, setOpen] = useState(false);
+
   const [fs, setFs] = useState(false);
+
+  const [version, setVersion] =
+    useState("loading...");
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -38,16 +45,60 @@ export function PowerMenu() {
       }
     };
 
-    const onFs = () => setFs(isFullscreen());
+    const onFs = () => {
+      setFs(isFullscreen());
+    };
+
+    getVersion().then(setVersion);
 
     document.addEventListener("click", onClick);
-    document.addEventListener("fullscreenchange", onFs);
+
+    document.addEventListener(
+      "fullscreenchange",
+      onFs
+    );
 
     return () => {
-      document.removeEventListener("click", onClick);
-      document.removeEventListener("fullscreenchange", onFs);
+      document.removeEventListener(
+        "click",
+        onClick
+      );
+
+      document.removeEventListener(
+        "fullscreenchange",
+        onFs
+      );
     };
   }, []);
+
+  // GLOBAL MENU CONTROL
+  useEffect(() => {
+    const closeSelf = () => {
+      setOpen(false);
+    };
+
+    window.addEventListener(
+      "bitos-close-menus",
+      closeSelf
+    );
+
+    return () => {
+      window.removeEventListener(
+        "bitos-close-menus",
+        closeSelf
+      );
+    };
+  }, []);
+
+  const toggleMenu = () => {
+    window.dispatchEvent(
+      new CustomEvent("bitos-close-menus")
+    );
+
+    setTimeout(() => {
+      setOpen((v) => !v);
+    }, 0);
+  };
 
   const Item = ({
     icon: Icon,
@@ -65,13 +116,14 @@ export function PowerMenu() {
         onClick();
         setOpen(false);
       }}
-      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded text-sm text-left transition-colors ${
+      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded text-sm text-left transition-colors duration-150 ${
         danger
           ? "hover:bg-destructive hover:text-destructive-foreground"
           : "hover:bg-secondary"
       }`}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-4 w-4 shrink-0" />
+
       <span>{label}</span>
     </button>
   );
@@ -82,7 +134,7 @@ export function PowerMenu() {
       ref={ref}
     >
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggleMenu}
         className="bitos-btn !px-2"
         aria-label="Power menu"
         title="Power"
@@ -114,7 +166,9 @@ export function PowerMenu() {
             <Item
               icon={RefreshCw}
               label="Reload BitOS"
-              onClick={() => window.location.reload()}
+              onClick={() =>
+                window.location.reload()
+              }
             />
 
             <div className="my-1 h-px bg-border" />
@@ -124,7 +178,10 @@ export function PowerMenu() {
               label="Lock (Sign Out)"
               onClick={() => {
                 signOut();
-                navigate({ to: "/login" });
+
+                navigate({
+                  to: "/login",
+                });
               }}
             />
 
@@ -138,18 +195,21 @@ export function PowerMenu() {
                 } catch {}
 
                 try {
+                  window.open("", "_self");
                   window.close();
                 } catch {}
 
                 setTimeout(() => {
-                  navigate({ to: "/powered-off" });
-                }, 80);
+                  navigate({
+                    to: "/powered-off",
+                  });
+                }, 120);
               }}
             />
           </div>
 
           <div className="mt-2 px-2 py-1 text-[10px] font-mono opacity-60 border-t border-border pt-2">
-            BitOS v0.2.0 · operator session
+            BitOS {version}
           </div>
         </div>
       )}
