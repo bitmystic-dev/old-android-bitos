@@ -101,7 +101,7 @@ function SudoPage() {
               type="submit" disabled={loading}
               className="w-full bitos-btn justify-center !py-2.5 !bg-primary !text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              {loading ? "creating…" : "▸ create account"}
+              {loading ? "provisioning…" : "▸ sudo provision"}
             </button>
           </form>
 
