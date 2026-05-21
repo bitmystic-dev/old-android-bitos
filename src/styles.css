@@ -1,0 +1,521 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant retro (&:is(.theme-retro *));
+@custom-variant cyber (&:is(.theme-cyber *));
+@custom-variant hacker (&:is(.theme-hacker *));
+@custom-variant cozy (&:is(.theme-cozy *));
+@custom-variant sakura (&:is(.theme-sakura *));
+@custom-variant midnight (&:is(.theme-midnight *));
+
+/*
+ * BitOS Design System
+ * Retro-futuristic, OS-inspired, fully themeable.
+ * All themes apply via a class on <html>. Tokens stay in oklch.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-window: var(--window);
+  --color-window-foreground: var(--window-foreground);
+  --color-titlebar: var(--titlebar);
+  --color-titlebar-foreground: var(--titlebar-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-glow: var(--glow);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+
+  --shadow-window: var(--shadow-window);
+  --shadow-bevel: var(--shadow-bevel);
+}
+
+/* ===== Default (Light) ===== */
+:root {
+  --radius: 0.75rem;
+
+  --background: oklch(0.96 0.015 90);
+  --foreground: oklch(0.18 0.02 270);
+  --surface: oklch(0.99 0.005 90);
+  --surface-foreground: oklch(0.18 0.02 270);
+  --window: oklch(0.99 0.005 90);
+  --window-foreground: oklch(0.18 0.02 270);
+  --titlebar: oklch(0.35 0.18 280);
+  --titlebar-foreground: oklch(0.98 0.01 90);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 270);
+  --primary: oklch(0.55 0.22 280);
+  --primary-foreground: oklch(0.99 0.005 90);
+  --secondary: oklch(0.92 0.03 90);
+  --secondary-foreground: oklch(0.25 0.04 280);
+  --muted: oklch(0.94 0.015 90);
+  --muted-foreground: oklch(0.5 0.02 270);
+  --accent: oklch(0.78 0.18 65);
+  --accent-foreground: oklch(0.15 0.02 270);
+  --destructive: oklch(0.6 0.24 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.85 0.02 90);
+  --input: oklch(0.92 0.02 90);
+  --ring: oklch(0.55 0.22 280);
+  --glow: oklch(0.7 0.25 300);
+
+  --font-display: "VT323", "Press Start 2P", ui-monospace, monospace;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --shadow-window: 8px 8px 0 0 oklch(0.18 0.02 270 / 0.15), 0 0 0 1px oklch(0.18 0.02 270 / 0.08);
+  --shadow-bevel: inset -2px -2px 0 0 oklch(0 0 0 / 0.15), inset 2px 2px 0 0 oklch(1 1 1 / 0.6);
+}
+
+/* ===== Dark ===== */
+.dark {
+  --background: oklch(0.14 0.02 270);
+  --foreground: oklch(0.95 0.01 90);
+  --surface: oklch(0.18 0.025 270);
+  --surface-foreground: oklch(0.95 0.01 90);
+  --window: oklch(0.2 0.03 270);
+  --window-foreground: oklch(0.95 0.01 90);
+  --titlebar: oklch(0.35 0.18 290);
+  --titlebar-foreground: oklch(0.98 0.01 90);
+  --card: oklch(0.22 0.03 270);
+  --card-foreground: oklch(0.95 0.01 90);
+  --popover: oklch(0.22 0.03 270);
+  --popover-foreground: oklch(0.95 0.01 90);
+  --primary: oklch(0.72 0.2 295);
+  --primary-foreground: oklch(0.14 0.02 270);
+  --secondary: oklch(0.26 0.04 270);
+  --secondary-foreground: oklch(0.95 0.01 90);
+  --muted: oklch(0.25 0.03 270);
+  --muted-foreground: oklch(0.7 0.02 270);
+  --accent: oklch(0.78 0.22 60);
+  --accent-foreground: oklch(0.15 0.02 270);
+  --destructive: oklch(0.65 0.24 20);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.3 0.03 270);
+  --input: oklch(0.28 0.03 270);
+  --ring: oklch(0.72 0.2 295);
+  --glow: oklch(0.75 0.28 300);
+
+  --shadow-window: 10px 10px 0 0 oklch(0 0 0 / 0.5), 0 0 0 1px oklch(1 0 0 / 0.06);
+}
+
+/* ===== Retro Windows 95 ===== */
+.theme-retro {
+  --radius: 0rem;
+  --background: oklch(0.55 0.08 200);
+  --foreground: oklch(0.18 0.02 270);
+  --surface: oklch(0.85 0.005 90);
+  --surface-foreground: oklch(0.18 0.02 270);
+  --window: oklch(0.85 0.005 90);
+  --window-foreground: oklch(0.15 0.02 270);
+  --titlebar: oklch(0.32 0.16 265);
+  --titlebar-foreground: oklch(0.98 0 0);
+  --card: oklch(0.85 0.005 90);
+  --card-foreground: oklch(0.15 0.02 270);
+  --popover: oklch(0.85 0.005 90);
+  --popover-foreground: oklch(0.15 0.02 270);
+  --primary: oklch(0.32 0.16 265);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.78 0.005 90);
+  --secondary-foreground: oklch(0.15 0.02 270);
+  --muted: oklch(0.78 0.005 90);
+  --muted-foreground: oklch(0.35 0.02 270);
+  --accent: oklch(0.7 0.18 45);
+  --accent-foreground: oklch(0.15 0.02 270);
+  --destructive: oklch(0.55 0.24 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.45 0.02 270);
+  --input: oklch(0.98 0 0);
+  --ring: oklch(0.4 0.2 265);
+  --glow: oklch(0.7 0.2 200);
+
+  --font-display: "VT323", ui-monospace, monospace;
+  --shadow-window: 4px 4px 0 0 oklch(0 0 0 / 0.5), inset -2px -2px 0 0 oklch(0.3 0.01 270), inset 2px 2px 0 0 oklch(1 0 0);
+}
+
+/* ===== Cyberpunk ===== */
+.theme-cyber {
+  --background: oklch(0.12 0.04 300);
+  --foreground: oklch(0.95 0.05 180);
+  --surface: oklch(0.16 0.05 300);
+  --surface-foreground: oklch(0.95 0.05 180);
+  --window: oklch(0.16 0.06 300);
+  --window-foreground: oklch(0.95 0.05 180);
+  --titlebar: oklch(0.35 0.25 330);
+  --titlebar-foreground: oklch(0.98 0.1 180);
+  --card: oklch(0.18 0.06 300);
+  --card-foreground: oklch(0.95 0.05 180);
+  --popover: oklch(0.18 0.06 300);
+  --popover-foreground: oklch(0.95 0.05 180);
+  --primary: oklch(0.75 0.28 330);
+  --primary-foreground: oklch(0.1 0.02 300);
+  --secondary: oklch(0.25 0.08 300);
+  --secondary-foreground: oklch(0.9 0.1 180);
+  --muted: oklch(0.22 0.06 300);
+  --muted-foreground: oklch(0.7 0.1 200);
+  --accent: oklch(0.8 0.25 180);
+  --accent-foreground: oklch(0.1 0.02 300);
+  --destructive: oklch(0.7 0.28 20);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.4 0.15 330);
+  --input: oklch(0.2 0.08 300);
+  --ring: oklch(0.8 0.25 180);
+  --glow: oklch(0.85 0.3 330);
+  --shadow-window: 0 0 24px oklch(0.75 0.28 330 / 0.45), 0 0 0 1px oklch(0.8 0.25 180 / 0.4);
+}
+
+/* ===== Hacker Green ===== */
+.theme-hacker {
+  --background: oklch(0.08 0.02 150);
+  --foreground: oklch(0.88 0.2 145);
+  --surface: oklch(0.12 0.03 150);
+  --surface-foreground: oklch(0.88 0.2 145);
+  --window: oklch(0.12 0.03 150);
+  --window-foreground: oklch(0.88 0.2 145);
+  --titlebar: oklch(0.2 0.1 145);
+  --titlebar-foreground: oklch(0.92 0.22 145);
+  --card: oklch(0.14 0.04 150);
+  --card-foreground: oklch(0.88 0.2 145);
+  --popover: oklch(0.14 0.04 150);
+  --popover-foreground: oklch(0.88 0.2 145);
+  --primary: oklch(0.8 0.22 145);
+  --primary-foreground: oklch(0.08 0.02 150);
+  --secondary: oklch(0.18 0.05 150);
+  --secondary-foreground: oklch(0.88 0.2 145);
+  --muted: oklch(0.16 0.04 150);
+  --muted-foreground: oklch(0.6 0.15 145);
+  --accent: oklch(0.85 0.22 130);
+  --accent-foreground: oklch(0.08 0.02 150);
+  --destructive: oklch(0.65 0.25 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.3 0.1 145);
+  --input: oklch(0.15 0.04 150);
+  --ring: oklch(0.8 0.22 145);
+  --glow: oklch(0.85 0.25 145);
+  --font-body: "JetBrains Mono", ui-monospace, monospace;
+  --shadow-window: 0 0 18px oklch(0.8 0.22 145 / 0.35);
+}
+
+/* ===== Cozy Brown ===== */
+.theme-cozy {
+  --background: oklch(0.92 0.03 75);
+  --foreground: oklch(0.25 0.04 40);
+  --surface: oklch(0.95 0.025 80);
+  --surface-foreground: oklch(0.25 0.04 40);
+  --window: oklch(0.97 0.02 80);
+  --window-foreground: oklch(0.25 0.04 40);
+  --titlebar: oklch(0.4 0.08 40);
+  --titlebar-foreground: oklch(0.97 0.02 80);
+  --card: oklch(0.97 0.02 80);
+  --card-foreground: oklch(0.25 0.04 40);
+  --popover: oklch(0.97 0.02 80);
+  --popover-foreground: oklch(0.25 0.04 40);
+  --primary: oklch(0.45 0.1 40);
+  --primary-foreground: oklch(0.97 0.02 80);
+  --secondary: oklch(0.88 0.04 75);
+  --secondary-foreground: oklch(0.3 0.05 40);
+  --muted: oklch(0.9 0.03 75);
+  --muted-foreground: oklch(0.45 0.04 40);
+  --accent: oklch(0.72 0.14 50);
+  --accent-foreground: oklch(0.2 0.03 40);
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.78 0.04 70);
+  --input: oklch(0.93 0.03 75);
+  --ring: oklch(0.55 0.12 40);
+  --glow: oklch(0.75 0.14 50);
+}
+
+/* ===== Sakura Pink ===== */
+.theme-sakura {
+  --background: oklch(0.96 0.025 350);
+  --foreground: oklch(0.3 0.05 350);
+  --surface: oklch(0.98 0.015 350);
+  --surface-foreground: oklch(0.3 0.05 350);
+  --window: oklch(0.99 0.01 350);
+  --window-foreground: oklch(0.3 0.05 350);
+  --titlebar: oklch(0.7 0.15 0);
+  --titlebar-foreground: oklch(0.99 0.005 350);
+  --card: oklch(0.99 0.01 350);
+  --card-foreground: oklch(0.3 0.05 350);
+  --popover: oklch(0.99 0.01 350);
+  --popover-foreground: oklch(0.3 0.05 350);
+  --primary: oklch(0.7 0.18 0);
+  --primary-foreground: oklch(0.99 0.005 350);
+  --secondary: oklch(0.93 0.04 350);
+  --secondary-foreground: oklch(0.35 0.06 350);
+  --muted: oklch(0.94 0.03 350);
+  --muted-foreground: oklch(0.5 0.05 350);
+  --accent: oklch(0.85 0.1 330);
+  --accent-foreground: oklch(0.25 0.05 350);
+  --destructive: oklch(0.6 0.24 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.88 0.05 350);
+  --input: oklch(0.96 0.02 350);
+  --ring: oklch(0.7 0.18 0);
+  --glow: oklch(0.85 0.18 350);
+}
+
+/* ===== Midnight Purple ===== */
+.theme-midnight {
+  --background: oklch(0.1 0.05 290);
+  --foreground: oklch(0.94 0.03 290);
+  --surface: oklch(0.15 0.06 290);
+  --surface-foreground: oklch(0.94 0.03 290);
+  --window: oklch(0.17 0.07 290);
+  --window-foreground: oklch(0.94 0.03 290);
+  --titlebar: oklch(0.3 0.18 290);
+  --titlebar-foreground: oklch(0.98 0.02 290);
+  --card: oklch(0.19 0.08 290);
+  --card-foreground: oklch(0.94 0.03 290);
+  --popover: oklch(0.19 0.08 290);
+  --popover-foreground: oklch(0.94 0.03 290);
+  --primary: oklch(0.7 0.22 295);
+  --primary-foreground: oklch(0.1 0.05 290);
+  --secondary: oklch(0.22 0.08 290);
+  --secondary-foreground: oklch(0.94 0.03 290);
+  --muted: oklch(0.2 0.07 290);
+  --muted-foreground: oklch(0.72 0.06 290);
+  --accent: oklch(0.78 0.2 320);
+  --accent-foreground: oklch(0.1 0.05 290);
+  --destructive: oklch(0.65 0.24 20);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.3 0.1 290);
+  --input: oklch(0.2 0.08 290);
+  --ring: oklch(0.7 0.22 295);
+  --glow: oklch(0.78 0.25 310);
+  --shadow-window: 0 0 32px oklch(0.7 0.22 295 / 0.3), 0 0 0 1px oklch(0.7 0.22 295 / 0.2);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 20% 10%, color-mix(in oklab, var(--glow) 10%, transparent) 0, transparent 40%),
+      radial-gradient(circle at 80% 90%, color-mix(in oklab, var(--primary) 12%, transparent) 0, transparent 45%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: 0.01em;
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+@layer components {
+  .bitos-window {
+    background-color: var(--color-window);
+    color: var(--color-window-foreground);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-window);
+    overflow: hidden;
+  }
+  .bitos-titlebar {
+    background: linear-gradient(90deg, var(--color-titlebar), color-mix(in oklab, var(--color-titlebar) 70%, var(--glow)));
+    color: var(--color-titlebar-foreground);
+    font-family: var(--font-display);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 0.75rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
+    user-select: none;
+  }
+  .bitos-titlebar-dots {
+    display: inline-flex;
+    gap: 0.35rem;
+  }
+  .bitos-dot {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--color-titlebar-foreground) 60%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-titlebar-foreground) 40%, transparent);
+  }
+  .theme-retro .bitos-window { box-shadow: var(--shadow-window); }
+  .theme-retro .bitos-titlebar { background: var(--color-titlebar); }
+
+  .bitos-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-secondary);
+    color: var(--color-secondary-foreground);
+    border: 1px solid var(--color-border);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .bitos-btn:hover {
+    background: color-mix(in oklab, var(--color-primary) 18%, var(--color-secondary));
+    transform: translateY(-1px);
+  }
+  .theme-retro .bitos-btn {
+    box-shadow: var(--shadow-bevel);
+    border-radius: 0;
+  }
+  .theme-retro .bitos-btn:active {
+    box-shadow: inset 2px 2px 0 0 oklch(0 0 0 / 0.25), inset -2px -2px 0 0 oklch(1 0 0 / 0.4);
+    transform: none;
+  }
+
+  .scanlines::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      color-mix(in oklab, var(--foreground) 6%, transparent) 0,
+      color-mix(in oklab, var(--foreground) 6%, transparent) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+  }
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+.cursor-blink::after { content: "▍"; margin-left: 2px; animation: blink 1s steps(2) infinite; }
+
+/* ===== Wallpapers ===== */
+.bitos-none { background: transparent; }
+
+.bitos-aurora {
+  background:
+    radial-gradient(ellipse at 20% 10%, color-mix(in oklab, var(--primary) 35%, transparent), transparent 55%),
+    radial-gradient(ellipse at 80% 30%, color-mix(in oklab, var(--accent) 30%, transparent), transparent 55%),
+    radial-gradient(ellipse at 50% 90%, color-mix(in oklab, var(--glow) 28%, transparent), transparent 60%);
+  filter: blur(40px) saturate(1.1);
+  animation: bitos-aurora-drift 18s ease-in-out infinite alternate;
+}
+@keyframes bitos-aurora-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-2%, 1%) scale(1.05); }
+}
+
+.bitos-grid {
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--foreground) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--foreground) 8%, transparent) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 90%);
+}
+
+.bitos-stars {
+  background-color: transparent;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, white, transparent),
+    radial-gradient(1px 1px at 70% 60%, white, transparent),
+    radial-gradient(1.5px 1.5px at 40% 80%, white, transparent),
+    radial-gradient(1px 1px at 85% 15%, white, transparent),
+    radial-gradient(1px 1px at 10% 70%, white, transparent),
+    radial-gradient(2px 2px at 55% 45%, color-mix(in oklab, var(--primary) 60%, white), transparent);
+  background-size: 600px 600px;
+  opacity: 0.65;
+  animation: bitos-twinkle 6s ease-in-out infinite alternate;
+}
+@keyframes bitos-twinkle {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.85; }
+}
+
+.bitos-scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in oklab, var(--foreground) 6%, transparent) 0,
+    color-mix(in oklab, var(--foreground) 6%, transparent) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.bitos-mesh {
+  background:
+    conic-gradient(from 0deg at 30% 30%, var(--primary), transparent 70%),
+    conic-gradient(from 180deg at 70% 70%, var(--accent), transparent 70%);
+  filter: blur(80px) saturate(1.2);
+  opacity: 0.55;
+}
+
+/* ===== Window opacity & blur tokens ===== */
+.bitos-window {
+  background-color: color-mix(in oklab, var(--color-window) calc(var(--bitos-window-opacity, 1) * 100%), transparent);
+  backdrop-filter: blur(var(--bitos-blur, 8px));
+}
+
+/* ===== React Grid Layout overrides ===== */
+.bitos-rgl .react-grid-item {
+  transition: transform 200ms ease;
+}
+.bitos-rgl .react-grid-item.react-grid-placeholder {
+  background: color-mix(in oklab, var(--primary) 30%, transparent) !important;
+  border: 2px dashed var(--primary);
+  border-radius: var(--radius);
+  opacity: 0.5;
+}
+.bitos-rgl .react-grid-item > .react-resizable-handle {
+  background-image: none;
+  width: 14px;
+  height: 14px;
+}
+.bitos-rgl .react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--primary);
+  border-bottom: 2px solid var(--primary);
+  opacity: 0.6;
+}
+
+@media (max-width: 640px) {
+  .bitos-btn { padding: 0.5rem 0.85rem; }
+}
