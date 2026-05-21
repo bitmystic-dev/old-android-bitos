@@ -2,23 +2,24 @@ https://bit-os.vercel.app
 
 To-Do: (In Order of Priority)
 
-  The Med, High, Low priority menu isn't seen in today.todo. Fix that + disable adding tasks from the dash
+  Need to adjust shape of the Power menu and themes menu also
 
-  Integrate login + data storage + synchronization (using firebase)
-
-  Work on the power, profile, etc menus not showing up
-
+  Add universal theme so that it syncs wherever you login
+ 
   Disable scroll bar
 
-  Create a cool boot animation upon load
-
-  Make the search work
+  Make the search advanced
 
   Make the dashboard cards Layout adjustable
 
   Integrate Music Player (https://github.com/monochrome-music/monochrome)
 
   Integrate AI (Either use Own AI model or Go with Gemini API)
+
+
+
+
+
 
 
 
