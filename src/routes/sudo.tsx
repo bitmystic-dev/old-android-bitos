@@ -13,7 +13,7 @@ export const Route = createFileRoute("/sudo")({
   head: () => ({ meta: [{ title: "sudo — BitOS" }] }),
 });
 
-function SignupPage() {
+function SudoPage() {
   const { signUp } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState("");
