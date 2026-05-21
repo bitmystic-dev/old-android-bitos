@@ -109,12 +109,8 @@ function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 flex items-center gap-2 text-xs">
-            <span className="opacity-60">new operator?</span>
-            <Link to="/signup" className="text-primary hover:underline font-mono">create account →</Link>
-          </div>
-          <div className="mt-4 text-[10px] font-mono opacity-50 leading-relaxed">
-            session persists across reboots · stored locally on this device
+          <div className="mt-6 text-[10px] font-mono opacity-50 leading-relaxed">
+            session persists across reboots only when "remember this terminal" is checked · stored locally on this device
           </div>
         </div>
       </motion.div>
