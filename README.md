@@ -6,6 +6,8 @@ To-Do: (In Order of Priority)
 
   Work on the power, profile, etc menus not showing up
 
+  Disable scroll bar
+
   Create a cool boot animation upon load
 
   Make the search work
