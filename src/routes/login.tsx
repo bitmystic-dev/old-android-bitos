@@ -18,6 +18,7 @@ function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +26,7 @@ function LoginPage() {
     e.preventDefault();
     setErr(""); setLoading(true);
     try {
-      await signIn(email, password);
+      await signIn(email, password, remember);
       navigate({ to: "/" });
     } catch (e: any) {
       setErr(e.message || "Login failed");
