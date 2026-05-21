@@ -32,10 +32,10 @@ export function TopBar({ onMobileMenu }: { onMobileMenu: () => void }) {
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        <div className="hidden sm:flex items-center gap-3 font-mono text-xs opacity-80">
-          <span>{time.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}</span>
+        <div className="hidden sm:flex items-center gap-3 font-mono text-xs opacity-80" suppressHydrationWarning>
+          <span>{time ? time.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) : ""}</span>
           <span className="text-foreground/90 font-display text-base leading-none">
-            {time.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+            {time ? time.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : ""}
           </span>
         </div>
 
