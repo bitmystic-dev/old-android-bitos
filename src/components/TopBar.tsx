@@ -7,10 +7,11 @@ import { PowerMenu } from "@/components/PowerMenu";
 export function TopBar({ onMobileMenu }: { onMobileMenu: () => void }) {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
-  const [time, setTime] = useState(new Date());
+  const [time, setTime] = useState<Date | null>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    setTime(new Date());
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
