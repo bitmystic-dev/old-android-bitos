@@ -25,7 +25,7 @@ export function DashboardGrid() {
         <ClockWidget />
         <StatsWidget />
         <QuoteWidget />
-        <TasksWidget />
+        <TasksWidget readOnly />
         <ScheduleWidget />
         <HabitsWidget />
         <MusicWidget />
