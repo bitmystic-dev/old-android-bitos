@@ -9,8 +9,8 @@ export const Route = createFileRoute("/sudo")({
   beforeLoad: () => {
     if (typeof window !== "undefined" && getSession()) throw redirect({ to: "/" });
   },
-  component: SignupPage,
-  head: () => ({ meta: [{ title: "Sign up — BitOS" }] }),
+  component: SudoPage,
+  head: () => ({ meta: [{ title: "sudo — BitOS" }] }),
 });
 
 function SignupPage() {
