@@ -1,11 +1,13 @@
 https://bit-os.vercel.app
 
-To-Do:
+To-Do: (In Order of Priority)
 
-Integrate Music Player (https://github.com/monochrome-music/monochrome)
+Integrate login + data storage + synchronization (using firebase)
 
 Work on the power, profile, etc menus not showing up
 
-Integrate login + data storage + synchronization (using firebase)
+Create a cool boot animation upon load
+
+Integrate Music Player (https://github.com/monochrome-music/monochrome)
 
 Integrate AI (Either use Own AI model or Go with Gemini API)
