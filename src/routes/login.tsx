@@ -18,6 +18,7 @@ function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +26,7 @@ function LoginPage() {
     e.preventDefault();
     setErr(""); setLoading(true);
     try {
-      await signIn(email, password);
+      await signIn(email, password, remember);
       navigate({ to: "/" });
     } catch (e: any) {
       setErr(e.message || "Login failed");
@@ -82,6 +83,16 @@ function LoginPage() {
                 className="w-full bg-input border border-border rounded-md px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring font-mono"
                 placeholder="••••••••"
               />
+            </label>
+
+            <label className="flex items-center gap-2 text-xs font-mono opacity-80 select-none cursor-pointer">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="h-3.5 w-3.5 accent-primary"
+              />
+              <span>remember this terminal</span>
             </label>
 
             {err && (
