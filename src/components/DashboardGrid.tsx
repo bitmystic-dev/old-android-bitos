@@ -18,7 +18,7 @@ export function DashboardGrid() {
         <h1 className="font-display text-2xl sm:text-3xl text-primary">
           welcome back, {user?.displayName || "operator"}
         </h1>
-        <span className="font-mono text-xs opacity-70">// dashboard — live data</span>
+        <span className="font-mono text-xs opacity-70">(dream. build. repeat.)</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
