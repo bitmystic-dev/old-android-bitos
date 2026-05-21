@@ -1,4 +1,3 @@
-```tsx
 import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { NAV } from "@/data/nav";
@@ -136,4 +135,3 @@ export function Sidebar({
     </aside>
   );
 }
-```
