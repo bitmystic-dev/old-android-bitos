@@ -17,7 +17,7 @@ export function TopBar({ onMobileMenu }: { onMobileMenu: () => void }) {
   }, []);
 
   return (
-    <header className="bitos-window mx-3 mt-3 flex items-center gap-2 px-3 py-2">
+    <header className="bitos-window mx-3 mt-3 flex items-center gap-2 px-3 py-2 relative z-40">
       <button onClick={onMobileMenu} className="md:hidden bitos-btn !px-2 !py-1.5" aria-label="Open menu">
         <Menu className="h-4 w-4" />
       </button>
