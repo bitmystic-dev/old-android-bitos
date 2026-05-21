@@ -5,15 +5,15 @@ import { getSession } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { Terminal } from "lucide-react";
 
-export const Route = createFileRoute("/signup")({
+export const Route = createFileRoute("/sudo")({
   beforeLoad: () => {
     if (typeof window !== "undefined" && getSession()) throw redirect({ to: "/" });
   },
-  component: SignupPage,
-  head: () => ({ meta: [{ title: "Sign up — BitOS" }] }),
+  component: SudoPage,
+  head: () => ({ meta: [{ title: "sudo — BitOS" }] }),
 });
 
-function SignupPage() {
+function SudoPage() {
   const { signUp } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -53,15 +53,15 @@ function SignupPage() {
               <span className="bitos-dot" style={{ background: "#28c840" }} />
             </span>
             <Terminal className="h-3.5 w-3.5" />
-            <span className="text-sm">auth.shell — register</span>
+            <span className="text-sm">auth.shell — sudo</span>
           </div>
-          <span className="text-[10px] opacity-70">tty0</span>
+          <span className="text-[10px] opacity-70">tty0 · root</span>
         </div>
 
         <div className="p-6 sm:p-8">
           <div className="mb-6">
-            <div className="font-display text-4xl text-primary leading-none">BitOS://</div>
-            <div className="font-mono text-xs opacity-70 mt-1 cursor-blink">register new operator</div>
+            <div className="font-display text-4xl text-primary leading-none">sudo://</div>
+            <div className="font-mono text-xs opacity-70 mt-1 cursor-blink">elevate — provision operator</div>
           </div>
 
           <form onSubmit={submit} className="space-y-3">
@@ -101,7 +101,7 @@ function SignupPage() {
               type="submit" disabled={loading}
               className="w-full bitos-btn justify-center !py-2.5 !bg-primary !text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              {loading ? "creating…" : "▸ create account"}
+              {loading ? "provisioning…" : "▸ sudo provision"}
             </button>
           </form>
 
