@@ -16,6 +16,24 @@
  * All themes apply via a class on <html>. Tokens stay in oklch.
  */
 
+/* For the whole page */
+body {
+  overflow: hidden;        /* Hide scrollbars visually */
+  overflow-y: scroll;      /* Keep vertical scrolling enabled */
+}
+
+/* Modern browsers (Webkit, like Chrome/Safari) */
+body::-webkit-scrollbar {
+  width: 0px;              /* Remove scrollbar width */
+  background: transparent;  /* Optional: remove background */
+}
+
+/* Firefox */
+body {
+  scrollbar-width: none;   /* Hide scrollbar */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
