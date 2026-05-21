@@ -53,15 +53,15 @@ function SudoPage() {
               <span className="bitos-dot" style={{ background: "#28c840" }} />
             </span>
             <Terminal className="h-3.5 w-3.5" />
-            <span className="text-sm">auth.shell — register</span>
+            <span className="text-sm">auth.shell — sudo</span>
           </div>
-          <span className="text-[10px] opacity-70">tty0</span>
+          <span className="text-[10px] opacity-70">tty0 · root</span>
         </div>
 
         <div className="p-6 sm:p-8">
           <div className="mb-6">
-            <div className="font-display text-4xl text-primary leading-none">BitOS://</div>
-            <div className="font-mono text-xs opacity-70 mt-1 cursor-blink">register new operator</div>
+            <div className="font-display text-4xl text-primary leading-none">sudo://</div>
+            <div className="font-mono text-xs opacity-70 mt-1 cursor-blink">elevate — provision operator</div>
           </div>
 
           <form onSubmit={submit} className="space-y-3">
