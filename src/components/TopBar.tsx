@@ -8,52 +8,92 @@ import { GlobalSearch } from "@/components/GlobalSearch";
 export function TopBar({ onMobileMenu }: { onMobileMenu: () => void }) {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
+
   const [time, setTime] = useState<Date | null>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setTime(new Date());
-    const t = setInterval(() => setTime(new Date()), 1000);
+
+    const t = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
     return () => clearInterval(t);
   }, []);
 
   return (
-    <header className="bitos-window mx-3 mt-3 flex items-center gap-2 px-3 py-2 relative z-40">
-      <button onClick={onMobileMenu} className="md:hidden bitos-btn !px-2 !py-1.5" aria-label="Open menu">
+    <header className="bitos-window mx-3 mt-3 flex items-center gap-2 px-3 py-2 relative z-[9999] overflow-visible">
+      <button
+        onClick={onMobileMenu}
+        className="md:hidden bitos-btn !px-2 !py-1.5"
+        aria-label="Open menu"
+      >
         <Menu className="h-4 w-4" />
       </button>
 
       <GlobalSearch />
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-2 overflow-visible">
         <div className="hidden sm:flex items-center gap-3 font-mono text-xs opacity-80 min-w-[110px] justify-end">
-          {time && <>
-            <span>{time.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span>
-            <span className="text-foreground/90 font-display text-base leading-none">
-              {time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-            </span>
-          </>}
+          {time && (
+            <>
+              <span>
+                {time.toLocaleDateString("en-US", {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </span>
+
+              <span className="text-foreground/90 font-display text-base leading-none">
+                {time.toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </>
+          )}
         </div>
 
-        <div className="relative">
-          <button onClick={() => setOpen((v) => !v)} className="bitos-btn !px-2" aria-label="Themes">
+        {/* THEME MENU */}
+        <div className="relative overflow-visible">
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="bitos-btn !px-2"
+            aria-label="Themes"
+          >
             <Palette className="h-4 w-4" />
           </button>
+
           {open && (
-            <div className="absolute right-0 mt-2 w-56 bitos-window p-2 z-[100] shadow-2xl">
-              <div className="bitos-titlebar -mx-2 -mt-2 mb-2 text-xs">themes.cfg</div>
+            <div className="absolute right-0 mt-2 w-56 bitos-window p-2 z-[99999] shadow-2xl overflow-visible">
+              <div className="bitos-titlebar -mx-2 -mt-2 mb-2 text-xs">
+                themes.cfg
+              </div>
+
               <ul className="grid grid-cols-1 gap-1 max-h-80 overflow-y-auto">
                 {THEMES.map((t) => (
                   <li key={t.id}>
                     <button
-                      onClick={() => { setTheme(t.id as ThemeName); setOpen(false); }}
-                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm hover:bg-secondary ${theme === t.id ? "bg-secondary" : ""}`}
+                      onClick={() => {
+                        setTheme(t.id as ThemeName);
+                        setOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm hover:bg-secondary ${
+                        theme === t.id ? "bg-secondary" : ""
+                      }`}
                     >
                       <span className="flex gap-1">
                         {t.swatch.map((c, i) => (
-                          <span key={i} className="h-3 w-3 rounded-full border border-border" style={{ background: c }} />
+                          <span
+                            key={i}
+                            className="h-3 w-3 rounded-full border border-border"
+                            style={{ background: c }}
+                          />
                         ))}
                       </span>
+
                       <span>{t.label}</span>
                     </button>
                   </li>
@@ -63,17 +103,25 @@ export function TopBar({ onMobileMenu }: { onMobileMenu: () => void }) {
           )}
         </div>
 
-        <button className="bitos-btn !px-2 hidden sm:inline-flex" aria-label="Notifications">
+        {/* NOTIFICATIONS */}
+        <button
+          className="bitos-btn !px-2 hidden sm:inline-flex relative z-[99999]"
+          aria-label="Notifications"
+        >
           <Bell className="h-4 w-4" />
         </button>
 
+        {/* POWER MENU */}
         <PowerMenu />
 
+        {/* USER AVATAR */}
         <div
           className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-accent border border-border flex items-center justify-center text-xs font-display"
           title={user?.email}
         >
-          {(user?.displayName || user?.email || "?").slice(0, 1).toUpperCase()}
+          {(user?.displayName || user?.email || "?")
+            .slice(0, 1)
+            .toUpperCase()}
         </div>
       </div>
     </header>
