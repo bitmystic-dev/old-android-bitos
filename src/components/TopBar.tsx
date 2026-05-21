@@ -46,7 +46,7 @@ export function TopBar({ onMobileMenu }: { onMobileMenu: () => void }) {
             <Palette className="h-4 w-4" />
           </button>
           {open && (
-            <div className="absolute right-0 mt-2 w-56 bitos-window p-2 z-50">
+            <div className="absolute right-0 mt-2 w-56 bitos-window p-2 z-[100] shadow-2xl">
               <div className="bitos-titlebar -mx-2 -mt-2 mb-2 text-xs">themes.cfg</div>
               <ul className="grid grid-cols-1 gap-1 max-h-80 overflow-y-auto">
                 {THEMES.map((t) => (
