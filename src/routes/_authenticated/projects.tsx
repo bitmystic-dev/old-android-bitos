@@ -179,7 +179,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
     <PageShell
       title={project.title}
       subtitle={project.description || "kanban.workspace"}
-      actions={
+      action={
         <Link to="/projects" search={{}} className="bitos-btn">
           <ArrowLeft className="h-3.5 w-3.5" /> back
         </Link>
