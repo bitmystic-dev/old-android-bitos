@@ -7,6 +7,8 @@ import appCss from "../styles.css?url";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WallpaperBackground } from "@/components/WallpaperBackground";
+import { FullscreenManager } from "@/components/FullscreenManager";
+import { BootSequence } from "@/components/BootSequence";
 
 function NotFoundComponent() {
   return (
@@ -45,9 +47,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "BitOS — your personal digital universe" },
-      { name: "description", content: "BitOS is a retro-futuristic creative operating system: dashboards, planners, habits, and projects in one cozy workspace." },
+      { name: "description", content: "BitOS is a retro-futuristic creative operating system: dashboards, planners, habits, projects, and AI — all in one cozy workspace." },
       { name: "theme-color", content: "#1a0b2e" },
       { property: "og:title", content: "BitOS — your personal digital universe" },
       { property: "og:description", content: "A cozy, customizable, OS-inspired second brain." },
@@ -84,6 +86,8 @@ function RootComponent() {
         <AuthProvider>
           <WallpaperBackground />
           <Outlet />
+          <FullscreenManager />
+          <BootSequence />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

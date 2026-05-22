@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { RetroWindow } from "@/components/RetroWindow";
 import { Check, Plus, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useBitStore, PRIORITY_META, visibleTasks, type Priority } from "@/lib/store";
+import { useBitStore, PRIORITY_META, type Priority } from "@/lib/store";
 import { Link } from "@tanstack/react-router";
 
 export function TasksWidget({ readOnly = false }: { readOnly?: boolean }) {
@@ -24,10 +24,10 @@ export function TasksWidget({ readOnly = false }: { readOnly?: boolean }) {
     return () => document.removeEventListener("click", onClick);
   }, []);
 
-  const all = visibleTasks(tasks);
-  const open = all.filter((t) => t.status !== "done");
-  const doneToday = all.filter((t) => t.status === "done");
-  const visible = readOnly ? all.slice(0, 8) : [...open, ...doneToday];
+  const open = tasks.filter((t) => t.status !== "done");
+  const visible = readOnly
+    ? open.slice(0, 6)
+    : [...open, ...tasks.filter((t) => t.status === "done").slice(0, 3)];
 
   const add = () => {
     if (!input.trim()) return;

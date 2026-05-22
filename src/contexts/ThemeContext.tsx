@@ -1,18 +1,18 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { useBitStore } from "@/lib/store";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-export type ThemeName = "light" | "dark" | "retro" | "cyber" | "hacker" | "cozy" | "sakura" | "midnight";
+export type ThemeName = "system" | "light" | "dark" | "retro" | "cyber" | "hacker" | "cozy" | "sakura" | "midnight";
 export type Wallpaper = "none" | "aurora" | "grid" | "stars" | "scanlines" | "mesh";
 
 export const THEMES: { id: ThemeName; label: string; swatch: string[] }[] = [
-  { id: "light",    label: "Light",       swatch: ["#f7f5ee", "#6d4cf2", "#f4a261"] },
-  { id: "dark",     label: "Dark",        swatch: ["#1a1530", "#b89aff", "#f4a261"] },
-  { id: "retro",    label: "Windows 95",  swatch: ["#008080", "#c0c0c0", "#000080"] },
-  { id: "cyber",    label: "Cyberpunk",   swatch: ["#1a0b2e", "#ff2a9d", "#00f0ff"] },
-  { id: "hacker",   label: "Hacker",      swatch: ["#0a1a0a", "#39ff14", "#80ff80"] },
-  { id: "cozy",     label: "Cozy",        swatch: ["#efe2cf", "#8b5a3c", "#d99a5b"] },
-  { id: "sakura",   label: "Sakura",      swatch: ["#fde7ef", "#ff6b9d", "#ffc1d6"] },
-  { id: "midnight", label: "Midnight",    swatch: ["#15082b", "#a064ff", "#ff7ad9"] },
+  { id: "system", label: "System", swatch: ["#e5e7eb", "#1f2937"] },
+  { id: "light", label: "Light", swatch: ["#f7f5ee", "#6d4cf2", "#f4a261"] },
+  { id: "dark", label: "Dark", swatch: ["#1a1530", "#b89aff", "#f4a261"] },
+  { id: "retro", label: "Windows 95", swatch: ["#008080", "#c0c0c0", "#000080"] },
+  { id: "cyber", label: "Cyberpunk", swatch: ["#1a0b2e", "#ff2a9d", "#00f0ff"] },
+  { id: "hacker", label: "Hacker", swatch: ["#0a1a0a", "#39ff14", "#80ff80"] },
+  { id: "cozy", label: "Cozy", swatch: ["#efe2cf", "#8b5a3c", "#d99a5b"] },
+  { id: "sakura", label: "Sakura", swatch: ["#fde7ef", "#ff6b9d", "#ffc1d6"] },
+  { id: "midnight", label: "Midnight", swatch: ["#15082b", "#a064ff", "#ff7ad9"] },
 ];
 
 export const WALLPAPERS: { id: Wallpaper; label: string }[] = [
@@ -30,13 +30,15 @@ type Customization = {
   density: "compact" | "comfy" | "spacious";
   fontDisplay: string;
   wallpaper: Wallpaper;
+  /** 0-100, lower = more transparent windows */
   opacity: number;
+  /** hex or CSS color, optional accent override */
   accent: string | null;
 };
 
 type Ctx = {
   theme: ThemeName;
-  resolved: ThemeName;
+  resolved: Exclude<ThemeName, "system">;
   setTheme: (t: ThemeName) => void;
   custom: Customization;
   setCustom: (c: Partial<Customization>) => void;
@@ -57,7 +59,7 @@ const DEFAULT_CUSTOM: Customization = {
   accent: null,
 };
 
-function applyTheme(resolved: ThemeName) {
+function applyTheme(resolved: Exclude<ThemeName, "system">) {
   const root = document.documentElement;
   THEME_CLASSES.forEach((c) => root.classList.remove(c));
   if (resolved === "dark") root.classList.add("dark");
@@ -65,31 +67,23 @@ function applyTheme(resolved: ThemeName) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeName>("dark");
+  const [theme, setThemeState] = useState<ThemeName>("system");
   const [custom, setCustomState] = useState<Customization>(DEFAULT_CUSTOM);
-  const hydrated = useRef(false);
 
-  // initial load from localStorage (fast)
   useEffect(() => {
     const saved = localStorage.getItem("bitos-theme") as ThemeName | null;
-    if (saved && saved !== ("system" as any)) setThemeState(saved);
+    if (saved) setThemeState(saved);
     const c = localStorage.getItem("bitos-custom");
-    if (c) { try { setCustomState((prev) => ({ ...prev, ...JSON.parse(c) })); } catch {} }
-    hydrated.current = true;
+    if (c) {
+      try { setCustomState((prev) => ({ ...prev, ...JSON.parse(c) })); } catch {}
+    }
   }, []);
 
-  // sync FROM firestore when user logs in / settings load
-  useEffect(() => {
-    const apply = () => {
-      const s = useBitStore.getState().settings;
-      if (s?.theme && s.theme !== "system") setThemeState(s.theme as ThemeName);
-      if (s?.custom) setCustomState((prev) => ({ ...prev, ...s.custom }));
-    };
-    window.addEventListener("bitos:settings-loaded", apply);
-    return () => window.removeEventListener("bitos:settings-loaded", apply);
-  }, []);
-
-  const resolved = theme;
+  const resolved = useMemo<Exclude<ThemeName, "system">>(() => {
+    if (theme !== "system") return theme;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
+    return "light";
+  }, [theme]);
 
   useEffect(() => {
     applyTheme(resolved);
@@ -106,31 +100,35 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, [resolved, custom]);
 
+  useEffect(() => {
+    if (theme !== "system") return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = () => applyTheme(mq.matches ? "dark" : "light");
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [theme]);
+
   const setTheme = (t: ThemeName) => {
     setThemeState(t);
     localStorage.setItem("bitos-theme", t);
-    if (useBitStore.getState().userId) useBitStore.getState().saveSettings({ theme: t });
   };
   const setCustom = (c: Partial<Customization>) => {
     setCustomState((prev) => {
       const next = { ...prev, ...c };
       localStorage.setItem("bitos-custom", JSON.stringify(next));
-      if (useBitStore.getState().userId) useBitStore.getState().saveSettings({ custom: next });
       return next;
     });
   };
   const reset = () => {
     setCustomState(DEFAULT_CUSTOM);
     localStorage.setItem("bitos-custom", JSON.stringify(DEFAULT_CUSTOM));
-    if (useBitStore.getState().userId) useBitStore.getState().saveSettings({ custom: DEFAULT_CUSTOM });
   };
 
-  const value = useMemo(
-    () => ({ theme, resolved, setTheme, custom, setCustom, reset }),
-    [theme, resolved, custom],
+  return (
+    <ThemeContext.Provider value={{ theme, resolved, setTheme, custom, setCustom, reset }}>
+      {children}
+    </ThemeContext.Provider>
   );
-
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {
