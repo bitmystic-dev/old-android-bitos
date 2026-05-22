@@ -490,24 +490,17 @@ export function visibleTasks(all: Task[]): Task[] {
 }
 
 export function habitStreak(h: Habit): number {
-  let streak = 0;
-  const today = new Date();
-  for (let i = 0; i < 365; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    if (h.history[toISODate(d)]) streak++;
-    else break;
-  }
-  return streak;
+  return typeof h.streak === "number" ? h.streak : calculateStreak(h.completedDays);
 }
 
 export function habitWeek(h: Habit): boolean[] {
   const out: boolean[] = [];
+  const completed = new Set(h.completedDays);
   const today = new Date();
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    out.push(!!h.history[toISODate(d)]);
+    out.push(completed.has(toISODate(d)));
   }
   return out;
 }
