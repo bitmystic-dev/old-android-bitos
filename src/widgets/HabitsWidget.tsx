@@ -11,9 +11,9 @@ export function HabitsWidget() {
   const [name, setName] = useState("");
   const today = toISODate();
 
-  const add = () => {
+  const add = async () => {
     if (!name.trim()) return;
-    void addHabit(name.trim());
+    await addHabit(name.trim());
     setName("");
   };
 
@@ -71,11 +71,11 @@ export function HabitsWidget() {
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && add()}
+          onKeyDown={(e) => { if (e.key === "Enter") void add(); }}
           placeholder="new habit…"
           className="flex-1 text-sm bg-input border border-border rounded-md px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-ring"
         />
-        <button onClick={add} className="bitos-btn"><Plus className="h-4 w-4" /></button>
+        <button onClick={() => void add()} className="bitos-btn"><Plus className="h-4 w-4" /></button>
       </div>
     </RetroWindow>
   );
