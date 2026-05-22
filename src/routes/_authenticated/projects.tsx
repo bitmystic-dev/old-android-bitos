@@ -179,7 +179,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
     <PageShell
       title={project.title}
       subtitle={project.description || "kanban.workspace"}
-      action={
+      actions={
         <Link to="/projects" search={{}} className="bitos-btn">
           <ArrowLeft className="h-3.5 w-3.5" /> back
         </Link>
@@ -238,7 +238,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
               <RetroWindow
                 title={col.title}
                 subtitle={`${cards.length}`}
-                action={
+                actions={
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => {
