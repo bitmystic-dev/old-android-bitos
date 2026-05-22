@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SudoRouteImport } from './routes/sudo'
-import { Route as PoweredOffRouteImport } from './routes/powered-off'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
@@ -18,20 +17,13 @@ import { Route as AuthenticatedSyllabusRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
-import { Route as AuthenticatedNovelRouteImport } from './routes/_authenticated/novel'
 import { Route as AuthenticatedInspirationRouteImport } from './routes/_authenticated/inspiration'
 import { Route as AuthenticatedHabitsRouteImport } from './routes/_authenticated/habits'
 import { Route as AuthenticatedCodeRouteImport } from './routes/_authenticated/code'
-import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 
 const SudoRoute = SudoRouteImport.update({
   id: '/sudo',
   path: '/sudo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PoweredOffRoute = PoweredOffRouteImport.update({
-  id: '/powered-off',
-  path: '/powered-off',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -68,11 +60,6 @@ const AuthenticatedPlannerRoute = AuthenticatedPlannerRouteImport.update({
   path: '/planner',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedNovelRoute = AuthenticatedNovelRouteImport.update({
-  id: '/novel',
-  path: '/novel',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedInspirationRoute =
   AuthenticatedInspirationRouteImport.update({
     id: '/inspiration',
@@ -89,22 +76,14 @@ const AuthenticatedCodeRoute = AuthenticatedCodeRouteImport.update({
   path: '/code',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAiRoute = AuthenticatedAiRouteImport.update({
-  id: '/ai',
-  path: '/ai',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
-  '/powered-off': typeof PoweredOffRoute
   '/sudo': typeof SudoRoute
-  '/ai': typeof AuthenticatedAiRoute
   '/code': typeof AuthenticatedCodeRoute
   '/habits': typeof AuthenticatedHabitsRoute
   '/inspiration': typeof AuthenticatedInspirationRoute
-  '/novel': typeof AuthenticatedNovelRoute
   '/planner': typeof AuthenticatedPlannerRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -112,13 +91,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/powered-off': typeof PoweredOffRoute
   '/sudo': typeof SudoRoute
-  '/ai': typeof AuthenticatedAiRoute
   '/code': typeof AuthenticatedCodeRoute
   '/habits': typeof AuthenticatedHabitsRoute
   '/inspiration': typeof AuthenticatedInspirationRoute
-  '/novel': typeof AuthenticatedNovelRoute
   '/planner': typeof AuthenticatedPlannerRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -129,13 +105,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
-  '/powered-off': typeof PoweredOffRoute
   '/sudo': typeof SudoRoute
-  '/_authenticated/ai': typeof AuthenticatedAiRoute
   '/_authenticated/code': typeof AuthenticatedCodeRoute
   '/_authenticated/habits': typeof AuthenticatedHabitsRoute
   '/_authenticated/inspiration': typeof AuthenticatedInspirationRoute
-  '/_authenticated/novel': typeof AuthenticatedNovelRoute
   '/_authenticated/planner': typeof AuthenticatedPlannerRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -147,13 +120,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
-    | '/powered-off'
     | '/sudo'
-    | '/ai'
     | '/code'
     | '/habits'
     | '/inspiration'
-    | '/novel'
     | '/planner'
     | '/projects'
     | '/settings'
@@ -161,13 +131,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
-    | '/powered-off'
     | '/sudo'
-    | '/ai'
     | '/code'
     | '/habits'
     | '/inspiration'
-    | '/novel'
     | '/planner'
     | '/projects'
     | '/settings'
@@ -177,13 +144,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/login'
-    | '/powered-off'
     | '/sudo'
-    | '/_authenticated/ai'
     | '/_authenticated/code'
     | '/_authenticated/habits'
     | '/_authenticated/inspiration'
-    | '/_authenticated/novel'
     | '/_authenticated/planner'
     | '/_authenticated/projects'
     | '/_authenticated/settings'
@@ -194,7 +158,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
-  PoweredOffRoute: typeof PoweredOffRoute
   SudoRoute: typeof SudoRoute
 }
 
@@ -205,13 +168,6 @@ declare module '@tanstack/react-router' {
       path: '/sudo'
       fullPath: '/sudo'
       preLoaderRoute: typeof SudoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/powered-off': {
-      id: '/powered-off'
-      path: '/powered-off'
-      fullPath: '/powered-off'
-      preLoaderRoute: typeof PoweredOffRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -263,13 +219,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlannerRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/novel': {
-      id: '/_authenticated/novel'
-      path: '/novel'
-      fullPath: '/novel'
-      preLoaderRoute: typeof AuthenticatedNovelRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/inspiration': {
       id: '/_authenticated/inspiration'
       path: '/inspiration'
@@ -291,22 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCodeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/ai': {
-      id: '/_authenticated/ai'
-      path: '/ai'
-      fullPath: '/ai'
-      preLoaderRoute: typeof AuthenticatedAiRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
   }
 }
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedAiRoute: typeof AuthenticatedAiRoute
   AuthenticatedCodeRoute: typeof AuthenticatedCodeRoute
   AuthenticatedHabitsRoute: typeof AuthenticatedHabitsRoute
   AuthenticatedInspirationRoute: typeof AuthenticatedInspirationRoute
-  AuthenticatedNovelRoute: typeof AuthenticatedNovelRoute
   AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -315,11 +255,9 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedAiRoute: AuthenticatedAiRoute,
   AuthenticatedCodeRoute: AuthenticatedCodeRoute,
   AuthenticatedHabitsRoute: AuthenticatedHabitsRoute,
   AuthenticatedInspirationRoute: AuthenticatedInspirationRoute,
-  AuthenticatedNovelRoute: AuthenticatedNovelRoute,
   AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
@@ -334,7 +272,6 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
-  PoweredOffRoute: PoweredOffRoute,
   SudoRoute: SudoRoute,
 }
 export const routeTree = rootRouteImport
