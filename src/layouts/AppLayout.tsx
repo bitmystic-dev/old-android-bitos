@@ -16,7 +16,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         <div className={mobileOpen ? "hidden md:block" : "block"}>
           <TopBar onMobileMenu={() => setMobileOpen(true)} />
         </div>
-        <main className="flex-1 p-2 sm:p-3 min-w-0">{children}</main>
+        <main className="flex-1 px-2 sm:px-3 pt-4 sm:pt-5 pb-3 min-w-0">{children}</main>
       </div>
       <MobileNav open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </div>
