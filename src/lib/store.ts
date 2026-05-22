@@ -332,18 +332,40 @@ export const useBitStore = create<State>((set, get) => {
       persist();
     },
 
-    addHabit: (name, color) => {
-      const habit: Habit = { id: crypto.randomUUID(), name: name.trim() || "untitled", color, createdAt: Date.now(), history: {} };
-      set((s) => ({ habits: [...s.habits, habit] })); persist(); return habit;
+    addHabit: async (title, color) => {
+      const uid = get().userId;
+      if (!uid) throw new Error("Sign in required");
+      const now = Date.now();
+      const habit: Habit = {
+        id: crypto.randomUUID(),
+        title: title.trim() || "untitled",
+        completedDays: [],
+        streak: 0,
+        color,
+        createdAt: now,
+        updatedAt: now,
+      };
+      await setDoc(habitDoc(uid, habit.id), habit);
+      return habit;
     },
-    deleteHabit: (id) => { set((s) => ({ habits: s.habits.filter((h) => h.id !== id) })); persist(); },
-    toggleHabitDay: (id, isoDate) => {
-      set((s) => ({
-        habits: s.habits.map((h) =>
-          h.id === id ? { ...h, history: { ...h.history, [isoDate]: !h.history[isoDate] } } : h,
-        ),
-      }));
-      persist();
+    deleteHabit: (id) => {
+      const uid = get().userId;
+      if (!uid) return;
+      void deleteDoc(habitDoc(uid, id));
+    },
+    toggleHabitDay: async (id, isoDate) => {
+      const uid = get().userId;
+      const habit = get().habits.find((h) => h.id === id);
+      if (!uid || !habit) return;
+      const completedDays = habit.completedDays.includes(isoDate)
+        ? habit.completedDays.filter((d) => d !== isoDate)
+        : [...habit.completedDays, isoDate];
+      await setDoc(habitDoc(uid, id), {
+        ...habit,
+        completedDays,
+        streak: calculateStreak(completedDays),
+        updatedAt: Date.now(),
+      }, { merge: true });
     },
 
     addEvent: (e) => {
