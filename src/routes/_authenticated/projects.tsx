@@ -12,7 +12,7 @@ import { PageShell } from "@/components/PageShell";
 import { RetroWindow } from "@/components/RetroWindow";
 import { type KanbanCard, type KanbanColumn, useBitStore } from "@/lib/store";
 import { ArrowLeft, FolderPlus, Plus, Trash2, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 
 export const Route = createFileRoute("/_authenticated/projects")({
   component: ProjectsPage,
@@ -354,5 +354,63 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
         </div>
       </DndContext>
     </PageShell>
+  );
+}
+
+function KanbanColumnView({ col, cards, children }: { col: KanbanColumn; cards: KanbanCard[]; children: ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `column:${col.id}`,
+    data: { colId: col.id, index: cards.length },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`w-[78vw] sm:w-72 shrink-0 snap-start rounded-md transition ${isOver ? "ring-2 ring-primary" : ""}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function KanbanCardItem({
+  card,
+  colId,
+  index,
+  selected,
+  onClick,
+  children,
+}: {
+  card: KanbanCard;
+  colId: string;
+  index: number;
+  selected: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: `card:${card.id}`,
+    data: { colId, index },
+  });
+  const { attributes, listeners, setNodeRef: setDragRef, transform, isDragging } = useDraggable({ id: card.id });
+  const setRefs = useCallback((node: HTMLLIElement | null) => {
+    setDropRef(node);
+    setDragRef(node);
+  }, [setDropRef, setDragRef]);
+  const style: CSSProperties = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+
+  return (
+    <li
+      ref={setRefs}
+      style={style}
+      {...listeners}
+      {...attributes}
+      onClick={onClick}
+      className={`group rounded-md border border-border p-2.5 bg-secondary/40 hover:bg-secondary cursor-grab active:cursor-grabbing touch-none transition ${
+        isOver ? "ring-2 ring-primary" : ""
+      } ${selected ? "ring-2 ring-accent" : ""} ${isDragging ? "opacity-80 z-50" : ""}`}
+    >
+      {children}
+    </li>
   );
 }
