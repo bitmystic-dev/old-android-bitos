@@ -6,6 +6,7 @@ import { useBitStore, habitStreak, habitWeek, toISODate } from "@/lib/store";
 export function HabitsWidget() {
   const habits = useBitStore((s) => s.habits);
   const addHabit = useBitStore((s) => s.addHabit);
+  const updateHabit = useBitStore((s) => s.updateHabit);
   const deleteHabit = useBitStore((s) => s.deleteHabit);
   const toggleHabitDay = useBitStore((s) => s.toggleHabitDay);
   const [name, setName] = useState("");
@@ -32,7 +33,12 @@ export function HabitsWidget() {
             return (
               <li key={h.id} className="group">
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="truncate">{h.title}</span>
+                  <input
+                    value={h.title}
+                    onChange={(e) => void updateHabit(h.id, { title: e.target.value })}
+                    className="min-w-0 flex-1 truncate bg-transparent outline-none focus:bg-input rounded px-1 -mx-1"
+                    aria-label="Habit title"
+                  />
                   <span className="flex items-center gap-2">
                     <span className="font-mono text-xs flex items-center gap-1 text-accent">
                       <Flame className="h-3 w-3" /> {streak}d
