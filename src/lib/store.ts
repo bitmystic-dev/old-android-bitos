@@ -229,14 +229,28 @@ export const useBitStore = create<State>((set, get) => {
     const s = get();
     if (!s.userId) return;
     scheduleSave(s.userId, {
-      tasks: s.tasks, habits: s.habits, events: s.events,
-      notes: s.notes, projects: s.projects, settings: s.settings,
+      tasks: s.tasks, events: s.events,
+      notes: s.notes, settings: s.settings,
     });
   };
 
+  const saveProject = async (project: Project) => {
+    const uid = get().userId;
+    if (!uid) return;
+    try {
+      await setDoc(kanbanBoardDoc(uid, project.id), { ...project, updatedAt: Date.now() }, { merge: true });
+    } catch (e) { console.error("[bitos] kanban save failed", e); }
+  };
   const mutateProject = (projectId: string, fn: (p: Project) => Project) => {
-    set((s) => ({ projects: s.projects.map((p) => (p.id === projectId ? fn(p) : p)) }));
-    persist();
+    let nextProject: Project | null = null;
+    set((s) => ({
+      projects: s.projects.map((p) => {
+        if (p.id !== projectId) return p;
+        nextProject = { ...fn(p), updatedAt: Date.now() };
+        return nextProject;
+      }),
+    }));
+    if (nextProject) void saveProject(nextProject);
   };
   const mutateBoard = (projectId: string, boardId: string, fn: (b: KanbanBoard) => KanbanBoard) =>
     mutateProject(projectId, (p) => ({ ...p, boards: p.boards.map((b) => (b.id === boardId ? fn(b) : b)) }));
