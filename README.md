@@ -1,8 +1,4 @@
-Android app of BitOS
-
-Building Instructions
-
-After Lovable finishes generating everything and pushes the code to GitHub, here’s the proper flow for turning BitOS into an Android app later (without the music integration for now):
+#  BitOS Android (Building Instructions)
 
 ---
 
