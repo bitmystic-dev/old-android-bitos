@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { RetroWindow } from "@/components/RetroWindow";
 import { Check, Plus, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useBitStore, PRIORITY_META, type Priority } from "@/lib/store";
+import { useBitStore, PRIORITY_META, visibleTasks, type Priority } from "@/lib/store";
 import { Link } from "@tanstack/react-router";
 
 export function TasksWidget({ readOnly = false }: { readOnly?: boolean }) {
