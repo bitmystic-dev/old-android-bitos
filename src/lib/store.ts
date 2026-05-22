@@ -132,15 +132,20 @@ type State = Data & {
 };
 
 const EMPTY: Data = { tasks: [], habits: [], events: [], notes: "", projects: [], settings: {} };
+type RootData = Pick<Data, "tasks" | "events" | "notes" | "settings">;
 
-let unsub: Unsubscribe | null = null;
+let unsubs: Unsubscribe[] = [];
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let skipNextSnapshot = false;
 
 function userDoc(uid: string) { return doc(getFbDb(), "users", uid); }
+function habitDoc(uid: string, habitId: string) { return doc(getFbDb(), "users", uid, "habits", habitId); }
+function habitsCol(uid: string) { return collection(getFbDb(), "users", uid, "habits"); }
+function kanbanBoardDoc(uid: string, boardId: string) { return doc(getFbDb(), "users", uid, "kanbanBoards", boardId); }
+function kanbanBoardsCol(uid: string) { return collection(getFbDb(), "users", uid, "kanbanBoards"); }
 
 let pendingUid: string | null = null;
-let pendingData: Data | null = null;
+let pendingData: RootData | null = null;
 
 async function flushNow() {
   if (!pendingUid || !pendingData) return;
@@ -160,12 +165,63 @@ if (typeof window !== "undefined") {
   });
 }
 
-function scheduleSave(uid: string, data: Data) {
+function scheduleSave(uid: string, data: RootData) {
   if (typeof window === "undefined") return;
   pendingUid = uid;
   pendingData = data;
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(() => { void flushNow(); }, 120);
+}
+
+function cleanupListeners() {
+  for (const unsub of unsubs) {
+    try { unsub(); } catch {}
+  }
+  unsubs = [];
+}
+
+function calculateStreak(days: string[]): number {
+  const completed = new Set(days);
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    if (completed.has(toISODate(d))) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function normalizeHabit(id: string, raw: any): Habit {
+  const completedDays = Array.isArray(raw?.completedDays)
+    ? raw.completedDays.filter((d: unknown): d is string => typeof d === "string")
+    : raw?.history && typeof raw.history === "object"
+      ? Object.entries(raw.history).filter(([, done]) => !!done).map(([day]) => day)
+      : [];
+  const now = Date.now();
+  return {
+    id: raw?.id || id,
+    title: raw?.title || raw?.name || "untitled",
+    completedDays,
+    streak: typeof raw?.streak === "number" ? raw.streak : calculateStreak(completedDays),
+    color: raw?.color,
+    createdAt: typeof raw?.createdAt === "number" ? raw.createdAt : now,
+    updatedAt: typeof raw?.updatedAt === "number" ? raw.updatedAt : now,
+  };
+}
+
+function normalizeProject(id: string, raw: any): Project {
+  const now = Date.now();
+  return {
+    id: raw?.id || id,
+    title: raw?.title || "untitled",
+    description: raw?.description,
+    color: raw?.color,
+    createdAt: typeof raw?.createdAt === "number" ? raw.createdAt : now,
+    updatedAt: typeof raw?.updatedAt === "number" ? raw.updatedAt : now,
+    boards: Array.isArray(raw?.boards) && raw.boards.length ? raw.boards : [defaultBoard()],
+  };
 }
 
 export const useBitStore = create<State>((set, get) => {
