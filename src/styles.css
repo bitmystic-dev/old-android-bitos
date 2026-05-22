@@ -605,3 +605,7 @@ body {
     opacity: 0;
   }
 }
+
+/* utility: hidden scrollbar (used for horizontal tab/board scrolling) */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
