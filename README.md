@@ -1,6 +1,6 @@
 #  BitOS Android (Building Instructions)
 
-Use this to update only the changed files in the directory (faster building process)
+Use this command to update only the changed files in the directory (faster apk building process whenever any new version of code is pushed to github)
 
 ```bash
 git pull
