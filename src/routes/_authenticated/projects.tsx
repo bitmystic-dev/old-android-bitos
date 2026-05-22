@@ -351,6 +351,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
             </button>
           )}
         </div>
+        </div>
       </DndContext>
     </PageShell>
   );
