@@ -16,7 +16,7 @@ git clone YOUR_GITHUB_REPO_URL
 cd your-project
 ```
 
-Or just download ZIP from GitHub.
+Or just download ZIP from GitHub. (using Git and git pull is strongly recommended if you are a long time supporter)
 
 ---
 
