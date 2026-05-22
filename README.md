@@ -16,7 +16,7 @@ git clone YOUR_GITHUB_REPO_URL
 cd your-project
 ```
 
-Or just download ZIP from GitHub.
+Or just download ZIP from GitHub. (using Git and git pull is strongly recommended if you are a long time supporter)
 
 ---
 
@@ -85,7 +85,7 @@ Example:
 
 ```bash
 App Name: BitOS
-Package ID: com.bitmystic.bitos
+Package ID: com.bitmysticdev.bitos
 ```
 
 ---
@@ -131,6 +131,13 @@ npx cap open android
 ```
 
 Android Studio opens automatically.
+
+make sure to use "Find" feature and find:
+
+```bash
+<?xml version="1.0" encoding="UTF-8">
+```
+there will be comments above this in a few files. Do remove them (if it shows red line but for safety we'll do otherwise the apk build fails)
 
 ---
 
