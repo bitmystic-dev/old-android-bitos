@@ -13,7 +13,7 @@ export function HabitsWidget() {
 
   const add = () => {
     if (!name.trim()) return;
-    addHabit(name.trim());
+    void addHabit(name.trim());
     setName("");
   };
 
@@ -32,7 +32,7 @@ export function HabitsWidget() {
             return (
               <li key={h.id} className="group">
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="truncate">{h.name}</span>
+                  <span className="truncate">{h.title}</span>
                   <span className="flex items-center gap-2">
                     <span className="font-mono text-xs flex items-center gap-1 text-accent">
                       <Flame className="h-3 w-3" /> {streak}d
@@ -52,7 +52,7 @@ export function HabitsWidget() {
                     return (
                       <button
                         key={i}
-                        onClick={() => isToday && toggleHabitDay(h.id, today)}
+                        onClick={() => { if (isToday) void toggleHabitDay(h.id, today); }}
                         disabled={!isToday}
                         className={`h-6 rounded-sm border border-border transition ${isToday ? "cursor-pointer hover:ring-1 hover:ring-primary" : "cursor-default"}`}
                         style={{ background: done ? "var(--color-primary)" : "var(--color-muted)" }}
