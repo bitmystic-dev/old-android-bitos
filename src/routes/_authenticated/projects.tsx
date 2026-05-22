@@ -10,7 +10,7 @@ import {
 } from "@dnd-kit/core";
 import { PageShell } from "@/components/PageShell";
 import { RetroWindow } from "@/components/RetroWindow";
-import { type KanbanBoard, type KanbanCard, type KanbanColumn, useBitStore } from "@/lib/store";
+import { type KanbanCard, type KanbanColumn, useBitStore } from "@/lib/store";
 import { ArrowLeft, FolderPlus, Plus, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -47,9 +47,9 @@ function ProjectList() {
   const [desc, setDesc] = useState("");
   const [color, setColor] = useState(ACCENTS[0]);
 
-  const create = () => {
+  const create = async () => {
     if (!title.trim()) return;
-    addProject({ title: title.trim(), description: desc.trim() || undefined, color });
+    await addProject({ title: title.trim(), description: desc.trim() || undefined, color });
     setTitle(""); setDesc(""); setOpen(false);
   };
 
@@ -137,7 +137,7 @@ function ProjectList() {
                   ))}
                 </div>
               </div>
-              <button onClick={create} className="w-full bitos-btn justify-center !bg-primary !text-primary-foreground !py-2">
+              <button onClick={() => void create()} className="w-full bitos-btn justify-center !bg-primary !text-primary-foreground !py-2">
                 <Plus className="h-4 w-4" /> create project
               </button>
             </div>
