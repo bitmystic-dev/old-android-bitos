@@ -6,14 +6,15 @@ import { useBitStore, habitStreak, habitWeek, toISODate } from "@/lib/store";
 export function HabitsWidget() {
   const habits = useBitStore((s) => s.habits);
   const addHabit = useBitStore((s) => s.addHabit);
+  const updateHabit = useBitStore((s) => s.updateHabit);
   const deleteHabit = useBitStore((s) => s.deleteHabit);
   const toggleHabitDay = useBitStore((s) => s.toggleHabitDay);
   const [name, setName] = useState("");
   const today = toISODate();
 
-  const add = () => {
+  const add = async () => {
     if (!name.trim()) return;
-    addHabit(name.trim());
+    await addHabit(name.trim());
     setName("");
   };
 
@@ -32,7 +33,12 @@ export function HabitsWidget() {
             return (
               <li key={h.id} className="group">
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="truncate">{h.name}</span>
+                  <input
+                    value={h.title}
+                    onChange={(e) => void updateHabit(h.id, { title: e.target.value })}
+                    className="min-w-0 flex-1 truncate bg-transparent outline-none focus:bg-input rounded px-1 -mx-1"
+                    aria-label="Habit title"
+                  />
                   <span className="flex items-center gap-2">
                     <span className="font-mono text-xs flex items-center gap-1 text-accent">
                       <Flame className="h-3 w-3" /> {streak}d
@@ -52,7 +58,7 @@ export function HabitsWidget() {
                     return (
                       <button
                         key={i}
-                        onClick={() => isToday && toggleHabitDay(h.id, today)}
+                        onClick={() => { if (isToday) void toggleHabitDay(h.id, today); }}
                         disabled={!isToday}
                         className={`h-6 rounded-sm border border-border transition ${isToday ? "cursor-pointer hover:ring-1 hover:ring-primary" : "cursor-default"}`}
                         style={{ background: done ? "var(--color-primary)" : "var(--color-muted)" }}
@@ -71,11 +77,11 @@ export function HabitsWidget() {
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && add()}
+          onKeyDown={(e) => { if (e.key === "Enter") void add(); }}
           placeholder="new habit…"
           className="flex-1 text-sm bg-input border border-border rounded-md px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-ring"
         />
-        <button onClick={add} className="bitos-btn"><Plus className="h-4 w-4" /></button>
+        <button onClick={() => void add()} className="bitos-btn"><Plus className="h-4 w-4" /></button>
       </div>
     </RetroWindow>
   );

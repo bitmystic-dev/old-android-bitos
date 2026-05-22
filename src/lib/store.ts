@@ -1,9 +1,19 @@
 /**
  * BitOS shared data store — Firestore-backed, real-time per user.
- * users/{uid} holds {tasks, habits, events, notes, settings, projects}.
+ * users/{uid} holds shared widgets; habits and Kanban use realtime subcollections.
  */
 import { create } from "zustand";
-import { doc, onSnapshot, setDoc, type Unsubscribe } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  onSnapshot,
+  orderBy,
+  query,
+  setDoc,
+  type Unsubscribe,
+} from "firebase/firestore";
 import { getFbDb } from "./firebase";
 
 export type Priority = "low" | "medium" | "high" | "na";
@@ -23,10 +33,12 @@ export type Task = {
 
 export type Habit = {
   id: string;
-  name: string;
+  title: string;
+  completedDays: string[];
+  streak: number;
   color?: string;
   createdAt: number;
-  history: Record<string, boolean>;
+  updatedAt: number;
 };
 
 export type PlannerEvent = {
@@ -63,6 +75,7 @@ export type Project = {
   description?: string;
   color?: string;
   createdAt: number;
+  updatedAt?: number;
   boards: KanbanBoard[];
 };
 
@@ -91,9 +104,10 @@ type State = Data & {
   deleteTask: (id: string) => void;
   toggleTask: (id: string) => void;
 
-  addHabit: (name: string, color?: string) => Habit;
+  addHabit: (title: string, color?: string) => Promise<Habit>;
+  updateHabit: (id: string, patch: Partial<Pick<Habit, "title" | "color">>) => Promise<void>;
   deleteHabit: (id: string) => void;
-  toggleHabitDay: (id: string, isoDate: string) => void;
+  toggleHabitDay: (id: string, isoDate: string) => Promise<void>;
 
   addEvent: (e: Omit<PlannerEvent, "id">) => PlannerEvent;
   deleteEvent: (id: string) => void;
@@ -103,7 +117,7 @@ type State = Data & {
   saveSettings: (s: BitSettings) => void;
 
   // projects / kanban
-  addProject: (p: Omit<Project, "id" | "createdAt" | "boards">) => Project;
+  addProject: (p: Omit<Project, "id" | "createdAt" | "updatedAt" | "boards">) => Promise<Project>;
   updateProject: (id: string, patch: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   addBoard: (projectId: string, title: string) => KanbanBoard | null;
@@ -119,15 +133,20 @@ type State = Data & {
 };
 
 const EMPTY: Data = { tasks: [], habits: [], events: [], notes: "", projects: [], settings: {} };
+type RootData = Pick<Data, "tasks" | "events" | "notes" | "settings">;
 
-let unsub: Unsubscribe | null = null;
+let unsubs: Unsubscribe[] = [];
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let skipNextSnapshot = false;
 
 function userDoc(uid: string) { return doc(getFbDb(), "users", uid); }
+function habitDoc(uid: string, habitId: string) { return doc(getFbDb(), "users", uid, "habits", habitId); }
+function habitsCol(uid: string) { return collection(getFbDb(), "users", uid, "habits"); }
+function kanbanBoardDoc(uid: string, boardId: string) { return doc(getFbDb(), "users", uid, "kanbanBoards", boardId); }
+function kanbanBoardsCol(uid: string) { return collection(getFbDb(), "users", uid, "kanbanBoards"); }
 
 let pendingUid: string | null = null;
-let pendingData: Data | null = null;
+let pendingData: RootData | null = null;
 
 async function flushNow() {
   if (!pendingUid || !pendingData) return;
@@ -147,7 +166,7 @@ if (typeof window !== "undefined") {
   });
 }
 
-function scheduleSave(uid: string, data: Data) {
+function scheduleSave(uid: string, data: RootData) {
   if (typeof window === "undefined") return;
   pendingUid = uid;
   pendingData = data;
@@ -155,19 +174,88 @@ function scheduleSave(uid: string, data: Data) {
   saveTimer = setTimeout(() => { void flushNow(); }, 120);
 }
 
+function cleanupListeners() {
+  for (const unsub of unsubs) {
+    try { unsub(); } catch {}
+  }
+  unsubs = [];
+}
+
+function calculateStreak(days: string[]): number {
+  const completed = new Set(days);
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    if (completed.has(toISODate(d))) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function normalizeHabit(id: string, raw: any): Habit {
+  const completedDays = Array.isArray(raw?.completedDays)
+    ? raw.completedDays.filter((d: unknown): d is string => typeof d === "string")
+    : raw?.history && typeof raw.history === "object"
+      ? Object.entries(raw.history).filter(([, done]) => !!done).map(([day]) => day)
+      : [];
+  const now = Date.now();
+  return {
+    id: raw?.id || id,
+    title: raw?.title || raw?.name || "untitled",
+    completedDays,
+    streak: typeof raw?.streak === "number" ? raw.streak : calculateStreak(completedDays),
+    color: raw?.color,
+    createdAt: typeof raw?.createdAt === "number" ? raw.createdAt : now,
+    updatedAt: typeof raw?.updatedAt === "number" ? raw.updatedAt : now,
+  };
+}
+
+function normalizeProject(id: string, raw: any): Project {
+  const now = Date.now();
+  return {
+    id: raw?.id || id,
+    title: raw?.title || "untitled",
+    description: raw?.description,
+    color: raw?.color,
+    createdAt: typeof raw?.createdAt === "number" ? raw.createdAt : now,
+    updatedAt: typeof raw?.updatedAt === "number" ? raw.updatedAt : now,
+    boards: Array.isArray(raw?.boards) && raw.boards.length ? raw.boards : [defaultBoard()],
+  };
+}
+
+function stripUndefined<T extends Record<string, any>>(value: T): T {
+  return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as T;
+}
+
 export const useBitStore = create<State>((set, get) => {
   const persist = () => {
     const s = get();
     if (!s.userId) return;
     scheduleSave(s.userId, {
-      tasks: s.tasks, habits: s.habits, events: s.events,
-      notes: s.notes, projects: s.projects, settings: s.settings,
+      tasks: s.tasks, events: s.events,
+      notes: s.notes, settings: s.settings,
     });
   };
 
+  const saveProject = async (project: Project) => {
+    const uid = get().userId;
+    if (!uid) return;
+    try {
+      await setDoc(kanbanBoardDoc(uid, project.id), { ...project, updatedAt: Date.now() }, { merge: true });
+    } catch (e) { console.error("[bitos] kanban save failed", e); }
+  };
   const mutateProject = (projectId: string, fn: (p: Project) => Project) => {
-    set((s) => ({ projects: s.projects.map((p) => (p.id === projectId ? fn(p) : p)) }));
-    persist();
+    let nextProject: Project | null = null;
+    set((s) => ({
+      projects: s.projects.map((p) => {
+        if (p.id !== projectId) return p;
+        nextProject = { ...fn(p), updatedAt: Date.now() };
+        return nextProject;
+      }),
+    }));
+    if (nextProject) void saveProject(nextProject);
   };
   const mutateBoard = (projectId: string, boardId: string, fn: (b: KanbanBoard) => KanbanBoard) =>
     mutateProject(projectId, (p) => ({ ...p, boards: p.boards.map((b) => (b.id === boardId ? fn(b) : b)) }));
@@ -179,27 +267,23 @@ export const useBitStore = create<State>((set, get) => {
     ...EMPTY,
 
     hydrate: (userId) => {
-      if (unsub) { try { unsub(); } catch {} unsub = null; }
+      cleanupListeners();
       // flush any pending write from the previous session before tearing down
       void flushNow();
       if (!userId || typeof window === "undefined") {
         set({ userId: null, syncing: false, loaded: false, ...EMPTY });
         return;
       }
-      // Keep current in-memory data until the snapshot resolves — avoids a
-      // race where a write fires against an empty state and wipes Firestore.
-      set({ userId, syncing: true, loaded: false });
-      unsub = onSnapshot(
+      set({ userId, syncing: true, loaded: false, habits: [], projects: [] });
+      const rootUnsub = onSnapshot(
         userDoc(userId),
         (snap) => {
           if (skipNextSnapshot) { skipNextSnapshot = false; set({ syncing: false, loaded: true }); return; }
-          const d = snap.data() as Partial<Data> | undefined;
+          const d = snap.data() as Partial<RootData> | undefined;
           set({
             tasks: d?.tasks ?? [],
-            habits: d?.habits ?? [],
             events: d?.events ?? [],
             notes: d?.notes ?? "",
-            projects: d?.projects ?? [],
             settings: d?.settings ?? {},
             syncing: false,
             loaded: true,
@@ -208,6 +292,44 @@ export const useBitStore = create<State>((set, get) => {
         },
         (err) => { console.error("[bitos] firestore subscribe failed", err); set({ syncing: false, loaded: true }); },
       );
+      const habitsUnsub = onSnapshot(
+        query(habitsCol(userId), orderBy("createdAt", "asc")),
+        async (snap) => {
+          const fromSubcollection = snap.docs.map((d) => normalizeHabit(d.id, d.data()));
+          if (fromSubcollection.length) {
+            set({ habits: fromSubcollection });
+            return;
+          }
+          const legacy = (await getDoc(userDoc(userId))).data()?.habits as unknown[] | undefined;
+          if (Array.isArray(legacy) && legacy.length) {
+            const migrated = legacy.map((h: any) => normalizeHabit(h.id || crypto.randomUUID(), h));
+            set({ habits: migrated });
+            void Promise.all(migrated.map((h) => setDoc(habitDoc(userId, h.id), h, { merge: true })));
+          } else {
+            set({ habits: [] });
+          }
+        },
+        (err) => console.error("[bitos] habits subscribe failed", err),
+      );
+      const boardsUnsub = onSnapshot(
+        query(kanbanBoardsCol(userId), orderBy("createdAt", "desc")),
+        async (snap) => {
+          const fromSubcollection = snap.docs.map((d) => normalizeProject(d.id, d.data()));
+          if (fromSubcollection.length) {
+            set({ projects: fromSubcollection });
+            return;
+          }
+          const legacy = (await getDoc(userDoc(userId))).data()?.projects as Project[] | undefined;
+          if (Array.isArray(legacy) && legacy.length) {
+            set({ projects: legacy.map((p) => normalizeProject(p.id, p)) });
+            void Promise.all(legacy.map((p) => setDoc(kanbanBoardDoc(userId, p.id), normalizeProject(p.id, p), { merge: true })));
+          } else {
+            set({ projects: [] });
+          }
+        },
+        (err) => console.error("[bitos] kanban subscribe failed", err),
+      );
+      unsubs = [rootUnsub, habitsUnsub, boardsUnsub];
     },
 
     addTask: (t) => {
@@ -229,18 +351,46 @@ export const useBitStore = create<State>((set, get) => {
       persist();
     },
 
-    addHabit: (name, color) => {
-      const habit: Habit = { id: crypto.randomUUID(), name: name.trim() || "untitled", color, createdAt: Date.now(), history: {} };
-      set((s) => ({ habits: [...s.habits, habit] })); persist(); return habit;
+    addHabit: async (title, color) => {
+      const uid = get().userId;
+      if (!uid) throw new Error("Sign in required");
+      const now = Date.now();
+      const habit: Habit = {
+        id: crypto.randomUUID(),
+        title: title.trim() || "untitled",
+        completedDays: [],
+        streak: 0,
+        color,
+        createdAt: now,
+        updatedAt: now,
+      };
+      await setDoc(habitDoc(uid, habit.id), stripUndefined(habit));
+      return habit;
     },
-    deleteHabit: (id) => { set((s) => ({ habits: s.habits.filter((h) => h.id !== id) })); persist(); },
-    toggleHabitDay: (id, isoDate) => {
-      set((s) => ({
-        habits: s.habits.map((h) =>
-          h.id === id ? { ...h, history: { ...h.history, [isoDate]: !h.history[isoDate] } } : h,
-        ),
-      }));
-      persist();
+    updateHabit: async (id, patch) => {
+      const uid = get().userId;
+      const habit = get().habits.find((h) => h.id === id);
+      if (!uid || !habit) return;
+      await setDoc(habitDoc(uid, id), stripUndefined({ ...patch, updatedAt: Date.now() }), { merge: true });
+    },
+    deleteHabit: (id) => {
+      const uid = get().userId;
+      if (!uid) return;
+      void deleteDoc(habitDoc(uid, id));
+    },
+    toggleHabitDay: async (id, isoDate) => {
+      const uid = get().userId;
+      const habit = get().habits.find((h) => h.id === id);
+      if (!uid || !habit) return;
+      const completedDays = habit.completedDays.includes(isoDate)
+        ? habit.completedDays.filter((d) => d !== isoDate)
+        : [...habit.completedDays, isoDate];
+      await setDoc(habitDoc(uid, id), {
+        ...habit,
+        completedDays,
+        streak: calculateStreak(completedDays),
+        updatedAt: Date.now(),
+      }, { merge: true });
     },
 
     addEvent: (e) => {
@@ -253,12 +403,20 @@ export const useBitStore = create<State>((set, get) => {
 
     saveSettings: (s) => { set((st) => ({ settings: { ...st.settings, ...s } })); persist(); },
 
-    addProject: (p) => {
-      const project: Project = { id: crypto.randomUUID(), createdAt: Date.now(), boards: [defaultBoard()], ...p };
-      set((s) => ({ projects: [project, ...s.projects] })); persist(); return project;
+    addProject: async (p) => {
+      const uid = get().userId;
+      if (!uid) throw new Error("Sign in required");
+      const now = Date.now();
+      const project: Project = { id: crypto.randomUUID(), createdAt: now, updatedAt: now, boards: [defaultBoard()], ...p };
+      await setDoc(kanbanBoardDoc(uid, project.id), stripUndefined(project));
+      return project;
     },
     updateProject: (id, patch) => mutateProject(id, (p) => ({ ...p, ...patch })),
-    deleteProject: (id) => { set((s) => ({ projects: s.projects.filter((p) => p.id !== id) })); persist(); },
+    deleteProject: (id) => {
+      const uid = get().userId;
+      if (!uid) return;
+      void deleteDoc(kanbanBoardDoc(uid, id));
+    },
 
     addBoard: (projectId, title) => {
       const board = { ...defaultBoard(), title: title.trim() || "board" };
@@ -357,24 +515,17 @@ export function visibleTasks(all: Task[]): Task[] {
 }
 
 export function habitStreak(h: Habit): number {
-  let streak = 0;
-  const today = new Date();
-  for (let i = 0; i < 365; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    if (h.history[toISODate(d)]) streak++;
-    else break;
-  }
-  return streak;
+  return typeof h.streak === "number" ? h.streak : calculateStreak(h.completedDays);
 }
 
 export function habitWeek(h: Habit): boolean[] {
   const out: boolean[] = [];
+  const completed = new Set(h.completedDays);
   const today = new Date();
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    out.push(!!h.history[toISODate(d)]);
+    out.push(completed.has(toISODate(d)));
   }
   return out;
 }

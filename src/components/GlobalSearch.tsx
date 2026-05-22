@@ -49,8 +49,8 @@ export function GlobalSearch() {
       out.push({ id: "t-" + t.id, type: "task", title: t.title, sub: t.status === "done" ? "done" : t.priority, to: "/planner" });
     for (const e of events) if (e.title.toLowerCase().includes(term))
       out.push({ id: "e-" + e.id, type: "event", title: e.title, sub: `${e.date}${e.time ? " " + e.time : ""}`, to: "/planner" });
-    for (const h of habits) if (h.name.toLowerCase().includes(term))
-      out.push({ id: "h-" + h.id, type: "habit", title: h.name, sub: "habit", to: "/habits" });
+    for (const h of habits) if (h.title.toLowerCase().includes(term))
+      out.push({ id: "h-" + h.id, type: "habit", title: h.title, sub: "habit", to: "/habits" });
     for (const n of NAV) if (n.label.toLowerCase().includes(term))
       out.push({ id: "p-" + n.to, type: "page", title: n.label, sub: "page", to: n.to });
     return out.slice(0, 12);

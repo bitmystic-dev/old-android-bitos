@@ -22,7 +22,7 @@ function Heatmap() {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
     const date = toISODate(d);
-    const done = habits.filter((h) => h.history[date]).length;
+    const done = habits.filter((h) => h.completedDays.includes(date)).length;
     cells.push({ date, ratio: habits.length === 0 ? 0 : done / habits.length });
   }
 

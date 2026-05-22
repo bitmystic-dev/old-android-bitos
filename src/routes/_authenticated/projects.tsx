@@ -1,9 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  DndContext,
+  PointerSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
 import { PageShell } from "@/components/PageShell";
 import { RetroWindow } from "@/components/RetroWindow";
-import { useBitStore } from "@/lib/store";
+import { type KanbanCard, type KanbanColumn, useBitStore } from "@/lib/store";
 import { ArrowLeft, FolderPlus, Plus, Trash2, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 
 export const Route = createFileRoute("/_authenticated/projects")({
   component: ProjectsPage,
@@ -38,9 +47,9 @@ function ProjectList() {
   const [desc, setDesc] = useState("");
   const [color, setColor] = useState(ACCENTS[0]);
 
-  const create = () => {
+  const create = async () => {
     if (!title.trim()) return;
-    addProject({ title: title.trim(), description: desc.trim() || undefined, color });
+    await addProject({ title: title.trim(), description: desc.trim() || undefined, color });
     setTitle(""); setDesc(""); setOpen(false);
   };
 
@@ -128,7 +137,7 @@ function ProjectList() {
                   ))}
                 </div>
               </div>
-              <button onClick={create} className="w-full bitos-btn justify-center !bg-primary !text-primary-foreground !py-2">
+              <button onClick={() => void create()} className="w-full bitos-btn justify-center !bg-primary !text-primary-foreground !py-2">
                 <Plus className="h-4 w-4" /> create project
               </button>
             </div>
@@ -157,9 +166,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
   const [newColTitle, setNewColTitle] = useState("");
   const [showAddCol, setShowAddCol] = useState(false);
   const [movingCardId, setMovingCardId] = useState<string | null>(null); // mobile tap-to-move
-
-  // HTML5 drag state for card target index hint
-  const [dragOver, setDragOver] = useState<{ col: string; index: number } | null>(null);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
   if (!board) return null;
 
@@ -173,6 +180,15 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
     if (!newColTitle.trim()) return;
     addColumn(projectId, board.id, newColTitle.trim());
     setNewColTitle(""); setShowAddCol(false);
+  };
+
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over) return;
+    const target = over.data.current as { colId?: string; index?: number } | undefined;
+    if (!target?.colId) return;
+    const fallback = board.columns.find((c) => c.id === target.colId)?.cardIds.length ?? 0;
+    moveCard(projectId, board.id, String(active.id), target.colId, target.index ?? fallback);
+    setMovingCardId(null);
   };
 
   return (
@@ -217,24 +233,12 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
       </div>
 
       {/* Columns — horizontal scroll on mobile */}
-      <div className="flex gap-3 overflow-x-auto pb-3 -mx-2 px-2 snap-x">
-        {board.columns.map((col) => {
-          const cards = col.cardIds.map((id) => board.cards[id]).filter(Boolean);
-          return (
-            <div
-              key={col.id}
-              className="w-[78vw] sm:w-72 shrink-0 snap-start"
-              onDragOver={(e) => { e.preventDefault(); }}
-              onDrop={(e) => {
-                e.preventDefault();
-                const cardId = e.dataTransfer.getData("text/cardId");
-                if (cardId) {
-                  const idx = dragOver?.col === col.id ? dragOver.index : cards.length;
-                  moveCard(projectId, board.id, cardId, col.id, idx);
-                }
-                setDragOver(null);
-              }}
-            >
+      <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+        <div className="flex gap-3 overflow-x-auto pb-3 -mx-2 px-2 snap-x touch-pan-x">
+          {board.columns.map((col) => {
+            const cards = col.cardIds.map((id) => board.cards[id]).filter(Boolean);
+            return (
+              <KanbanColumnView key={col.id} col={col} cards={cards}>
               <RetroWindow
                 title={col.title}
                 subtitle={`${cards.length}`}
@@ -261,14 +265,12 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
                     <li className="text-[11px] font-mono opacity-40 text-center py-2">// drop cards here</li>
                   )}
                   {cards.map((c, idx) => (
-                    <li
+                    <KanbanCardItem
                       key={c.id}
-                      draggable
-                      onDragStart={(e) => { e.dataTransfer.setData("text/cardId", c.id); e.dataTransfer.effectAllowed = "move"; }}
-                      onDragOver={(e) => { e.preventDefault(); setDragOver({ col: col.id, index: idx }); }}
-                      className={`group rounded-md border border-border p-2.5 bg-secondary/40 hover:bg-secondary cursor-grab active:cursor-grabbing transition ${
-                        dragOver?.col === col.id && dragOver.index === idx ? "ring-2 ring-primary" : ""
-                      } ${movingCardId === c.id ? "ring-2 ring-accent" : ""}`}
+                      card={c}
+                      colId={col.id}
+                      index={idx}
+                      selected={movingCardId === c.id}
                       onClick={() => {
                         if (movingCardId && movingCardId !== c.id) return;
                         if (movingCardId === c.id) setMovingCardId(null);
@@ -288,7 +290,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
                           <X className="h-3 w-3" />
                         </button>
                       </div>
-                    </li>
+                    </KanbanCardItem>
                   ))}
                 </ul>
 
@@ -324,7 +326,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
                   </button>
                 )}
               </RetroWindow>
-            </div>
+            </KanbanColumnView>
           );
         })}
 
@@ -349,7 +351,66 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
             </button>
           )}
         </div>
-      </div>
+        </div>
+      </DndContext>
     </PageShell>
+  );
+}
+
+function KanbanColumnView({ col, cards, children }: { col: KanbanColumn; cards: KanbanCard[]; children: ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `column:${col.id}`,
+    data: { colId: col.id, index: cards.length },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`w-[78vw] sm:w-72 shrink-0 snap-start rounded-md transition ${isOver ? "ring-2 ring-primary" : ""}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function KanbanCardItem({
+  card,
+  colId,
+  index,
+  selected,
+  onClick,
+  children,
+}: {
+  card: KanbanCard;
+  colId: string;
+  index: number;
+  selected: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: `card:${card.id}`,
+    data: { colId, index },
+  });
+  const { attributes, listeners, setNodeRef: setDragRef, transform, isDragging } = useDraggable({ id: card.id });
+  const setRefs = useCallback((node: HTMLLIElement | null) => {
+    setDropRef(node);
+    setDragRef(node);
+  }, [setDropRef, setDragRef]);
+  const style: CSSProperties | undefined = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+
+  return (
+    <li
+      ref={setRefs}
+      style={style}
+      {...listeners}
+      {...attributes}
+      onClick={onClick}
+      className={`group rounded-md border border-border p-2.5 bg-secondary/40 hover:bg-secondary cursor-grab active:cursor-grabbing touch-none transition ${
+        isOver ? "ring-2 ring-primary" : ""
+      } ${selected ? "ring-2 ring-accent" : ""} ${isDragging ? "opacity-80 z-50" : ""}`}
+    >
+      {children}
+    </li>
   );
 }

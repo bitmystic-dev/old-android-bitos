@@ -29,7 +29,8 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
           <motion.aside
             initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }}
             transition={{ type: "spring", stiffness: 320, damping: 32 }}
-            className="fixed top-0 left-0 bottom-0 z-[210] w-[80vw] max-w-[300px] bitos-window m-2 md:hidden flex flex-col overflow-hidden bitos-safe-top bitos-safe-bottom"
+            className="fixed left-0 bottom-0 z-[210] w-[80vw] max-w-[300px] bitos-window mx-2 mb-2 mt-4 md:hidden flex flex-col overflow-hidden bitos-safe-top bitos-safe-bottom"
+            style={{ top: "calc(var(--safe-top) + 0.75rem)" }}
           >
             <div className="bitos-titlebar">
               <span className="text-sm tracking-widest truncate">BitOS://menu</span>
@@ -66,6 +67,9 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
                 })}
               </ul>
             </nav>
+            <div className="border-t border-border px-3 py-2 font-mono text-[10px] text-foreground/55">
+              Made by Sai Pranav (BitMystic)
+            </div>
           </motion.aside>
         </>
       )}
