@@ -225,6 +225,10 @@ function normalizeProject(id: string, raw: any): Project {
   };
 }
 
+function stripUndefined<T extends Record<string, any>>(value: T): T {
+  return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as T;
+}
+
 export const useBitStore = create<State>((set, get) => {
   const persist = () => {
     const s = get();
@@ -360,14 +364,14 @@ export const useBitStore = create<State>((set, get) => {
         createdAt: now,
         updatedAt: now,
       };
-      await setDoc(habitDoc(uid, habit.id), habit);
+      await setDoc(habitDoc(uid, habit.id), stripUndefined(habit));
       return habit;
     },
     updateHabit: async (id, patch) => {
       const uid = get().userId;
       const habit = get().habits.find((h) => h.id === id);
       if (!uid || !habit) return;
-      await setDoc(habitDoc(uid, id), { ...patch, updatedAt: Date.now() }, { merge: true });
+      await setDoc(habitDoc(uid, id), stripUndefined({ ...patch, updatedAt: Date.now() }), { merge: true });
     },
     deleteHabit: (id) => {
       const uid = get().userId;
@@ -404,7 +408,7 @@ export const useBitStore = create<State>((set, get) => {
       if (!uid) throw new Error("Sign in required");
       const now = Date.now();
       const project: Project = { id: crypto.randomUUID(), createdAt: now, updatedAt: now, boards: [defaultBoard()], ...p };
-      await setDoc(kanbanBoardDoc(uid, project.id), project);
+      await setDoc(kanbanBoardDoc(uid, project.id), stripUndefined(project));
       return project;
     },
     updateProject: (id, patch) => mutateProject(id, (p) => ({ ...p, ...patch })),
