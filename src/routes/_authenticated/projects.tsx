@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  DndContext,
+  PointerSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
 import { PageShell } from "@/components/PageShell";
 import { RetroWindow } from "@/components/RetroWindow";
-import { useBitStore } from "@/lib/store";
+import { type KanbanBoard, type KanbanCard, type KanbanColumn, useBitStore } from "@/lib/store";
 import { ArrowLeft, FolderPlus, Plus, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
