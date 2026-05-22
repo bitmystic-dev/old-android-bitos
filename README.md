@@ -85,7 +85,7 @@ Example:
 
 ```bash
 App Name: BitOS
-Package ID: com.bitmystic.bitos
+Package ID: com.bitmysticdev.bitos
 ```
 
 ---
