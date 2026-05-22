@@ -262,27 +262,23 @@ export const useBitStore = create<State>((set, get) => {
     ...EMPTY,
 
     hydrate: (userId) => {
-      if (unsub) { try { unsub(); } catch {} unsub = null; }
+      cleanupListeners();
       // flush any pending write from the previous session before tearing down
       void flushNow();
       if (!userId || typeof window === "undefined") {
         set({ userId: null, syncing: false, loaded: false, ...EMPTY });
         return;
       }
-      // Keep current in-memory data until the snapshot resolves — avoids a
-      // race where a write fires against an empty state and wipes Firestore.
-      set({ userId, syncing: true, loaded: false });
-      unsub = onSnapshot(
+      set({ userId, syncing: true, loaded: false, habits: [], projects: [] });
+      const rootUnsub = onSnapshot(
         userDoc(userId),
         (snap) => {
           if (skipNextSnapshot) { skipNextSnapshot = false; set({ syncing: false, loaded: true }); return; }
-          const d = snap.data() as Partial<Data> | undefined;
+          const d = snap.data() as Partial<RootData> | undefined;
           set({
             tasks: d?.tasks ?? [],
-            habits: d?.habits ?? [],
             events: d?.events ?? [],
             notes: d?.notes ?? "",
-            projects: d?.projects ?? [],
             settings: d?.settings ?? {},
             syncing: false,
             loaded: true,
@@ -291,6 +287,30 @@ export const useBitStore = create<State>((set, get) => {
         },
         (err) => { console.error("[bitos] firestore subscribe failed", err); set({ syncing: false, loaded: true }); },
       );
+      const habitsUnsub = onSnapshot(
+        query(habitsCol(userId), orderBy("createdAt", "asc")),
+        (snap) => set({ habits: snap.docs.map((d) => normalizeHabit(d.id, d.data())) }),
+        (err) => console.error("[bitos] habits subscribe failed", err),
+      );
+      const boardsUnsub = onSnapshot(
+        query(kanbanBoardsCol(userId), orderBy("createdAt", "desc")),
+        async (snap) => {
+          const fromSubcollection = snap.docs.map((d) => normalizeProject(d.id, d.data()));
+          if (fromSubcollection.length) {
+            set({ projects: fromSubcollection });
+            return;
+          }
+          const legacy = (await getDoc(userDoc(userId))).data()?.projects as Project[] | undefined;
+          if (Array.isArray(legacy) && legacy.length) {
+            set({ projects: legacy.map((p) => normalizeProject(p.id, p)) });
+            void Promise.all(legacy.map((p) => setDoc(kanbanBoardDoc(userId, p.id), normalizeProject(p.id, p), { merge: true })));
+          } else {
+            set({ projects: [] });
+          }
+        },
+        (err) => console.error("[bitos] kanban subscribe failed", err),
+      );
+      unsubs = [rootUnsub, habitsUnsub, boardsUnsub];
     },
 
     addTask: (t) => {
