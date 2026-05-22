@@ -10,7 +10,16 @@ export const Route = createFileRoute("/_authenticated/inspiration")({
 function Inspiration() {
   return (
     <PageShell title="inspiration" subtitle="muse.feed">
-      <ComingSoon title="inspiration.muse" note="A curated feed of art, reads, music and code. Shipping soon." />
+      <ComingSoon
+        moduleName="inspiration.muse"
+        tagline="curated feed — coming soon"
+        blurb="A hand-tuned stream of art, reads, music and code to fuel your next project."
+        features={[
+          { name: "Feed", desc: "Daily drops across art, code, and writing." },
+          { name: "Save", desc: "Pin items to your personal vault." },
+          { name: "Share", desc: "Send finds to friends inside BitOS." },
+        ]}
+      />
     </PageShell>
   );
 }
