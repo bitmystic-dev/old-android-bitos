@@ -105,6 +105,7 @@ type State = Data & {
   toggleTask: (id: string) => void;
 
   addHabit: (title: string, color?: string) => Promise<Habit>;
+  updateHabit: (id: string, patch: Partial<Pick<Habit, "title" | "color">>) => Promise<void>;
   deleteHabit: (id: string) => void;
   toggleHabitDay: (id: string, isoDate: string) => Promise<void>;
 
@@ -361,6 +362,12 @@ export const useBitStore = create<State>((set, get) => {
       };
       await setDoc(habitDoc(uid, habit.id), habit);
       return habit;
+    },
+    updateHabit: async (id, patch) => {
+      const uid = get().userId;
+      const habit = get().habits.find((h) => h.id === id);
+      if (!uid || !habit) return;
+      await setDoc(habitDoc(uid, id), { ...patch, updatedAt: Date.now() }, { merge: true });
     },
     deleteHabit: (id) => {
       const uid = get().userId;
