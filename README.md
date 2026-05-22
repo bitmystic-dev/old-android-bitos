@@ -132,6 +132,13 @@ npx cap open android
 
 Android Studio opens automatically.
 
+make sure to use "Find" feature and find:
+
+```bash
+<?xml version="1.0" encoding="UTF-8">
+```
+there will be comments above this in a few files. Do remove them (if it shows red line but for safety we'll do otherwise the apk build fails)
+
 ---
 
 # 10. Build APK
