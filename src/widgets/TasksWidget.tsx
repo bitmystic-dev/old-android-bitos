@@ -24,10 +24,10 @@ export function TasksWidget({ readOnly = false }: { readOnly?: boolean }) {
     return () => document.removeEventListener("click", onClick);
   }, []);
 
-  const open = tasks.filter((t) => t.status !== "done");
-  const visible = readOnly
-    ? open.slice(0, 6)
-    : [...open, ...tasks.filter((t) => t.status === "done").slice(0, 3)];
+  const all = visibleTasks(tasks);
+  const open = all.filter((t) => t.status !== "done");
+  const doneToday = all.filter((t) => t.status === "done");
+  const visible = readOnly ? all.slice(0, 8) : [...open, ...doneToday];
 
   const add = () => {
     if (!input.trim()) return;
