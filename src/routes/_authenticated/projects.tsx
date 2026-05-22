@@ -397,7 +397,7 @@ function KanbanCardItem({
     setDropRef(node);
     setDragRef(node);
   }, [setDropRef, setDragRef]);
-  const style: CSSProperties = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+  const style: CSSProperties | undefined = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
 
   return (
     <li
