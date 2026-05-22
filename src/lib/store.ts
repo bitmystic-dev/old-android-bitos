@@ -289,7 +289,21 @@ export const useBitStore = create<State>((set, get) => {
       );
       const habitsUnsub = onSnapshot(
         query(habitsCol(userId), orderBy("createdAt", "asc")),
-        (snap) => set({ habits: snap.docs.map((d) => normalizeHabit(d.id, d.data())) }),
+        async (snap) => {
+          const fromSubcollection = snap.docs.map((d) => normalizeHabit(d.id, d.data()));
+          if (fromSubcollection.length) {
+            set({ habits: fromSubcollection });
+            return;
+          }
+          const legacy = (await getDoc(userDoc(userId))).data()?.habits as unknown[] | undefined;
+          if (Array.isArray(legacy) && legacy.length) {
+            const migrated = legacy.map((h: any) => normalizeHabit(h.id || crypto.randomUUID(), h));
+            set({ habits: migrated });
+            void Promise.all(migrated.map((h) => setDoc(habitDoc(userId, h.id), h, { merge: true })));
+          } else {
+            set({ habits: [] });
+          }
+        },
         (err) => console.error("[bitos] habits subscribe failed", err),
       );
       const boardsUnsub = onSnapshot(
