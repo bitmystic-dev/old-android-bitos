@@ -233,24 +233,12 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
       </div>
 
       {/* Columns — horizontal scroll on mobile */}
-      <div className="flex gap-3 overflow-x-auto pb-3 -mx-2 px-2 snap-x">
-        {board.columns.map((col) => {
-          const cards = col.cardIds.map((id) => board.cards[id]).filter(Boolean);
-          return (
-            <div
-              key={col.id}
-              className="w-[78vw] sm:w-72 shrink-0 snap-start"
-              onDragOver={(e) => { e.preventDefault(); }}
-              onDrop={(e) => {
-                e.preventDefault();
-                const cardId = e.dataTransfer.getData("text/cardId");
-                if (cardId) {
-                  const idx = dragOver?.col === col.id ? dragOver.index : cards.length;
-                  moveCard(projectId, board.id, cardId, col.id, idx);
-                }
-                setDragOver(null);
-              }}
-            >
+      <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+        <div className="flex gap-3 overflow-x-auto pb-3 -mx-2 px-2 snap-x touch-pan-x">
+          {board.columns.map((col) => {
+            const cards = col.cardIds.map((id) => board.cards[id]).filter(Boolean);
+            return (
+              <KanbanColumnView key={col.id} col={col} cards={cards}>
               <RetroWindow
                 title={col.title}
                 subtitle={`${cards.length}`}
@@ -277,14 +265,12 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
                     <li className="text-[11px] font-mono opacity-40 text-center py-2">// drop cards here</li>
                   )}
                   {cards.map((c, idx) => (
-                    <li
+                    <KanbanCardItem
                       key={c.id}
-                      draggable
-                      onDragStart={(e) => { e.dataTransfer.setData("text/cardId", c.id); e.dataTransfer.effectAllowed = "move"; }}
-                      onDragOver={(e) => { e.preventDefault(); setDragOver({ col: col.id, index: idx }); }}
-                      className={`group rounded-md border border-border p-2.5 bg-secondary/40 hover:bg-secondary cursor-grab active:cursor-grabbing transition ${
-                        dragOver?.col === col.id && dragOver.index === idx ? "ring-2 ring-primary" : ""
-                      } ${movingCardId === c.id ? "ring-2 ring-accent" : ""}`}
+                      card={c}
+                      colId={col.id}
+                      index={idx}
+                      selected={movingCardId === c.id}
                       onClick={() => {
                         if (movingCardId && movingCardId !== c.id) return;
                         if (movingCardId === c.id) setMovingCardId(null);
@@ -304,7 +290,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
                           <X className="h-3 w-3" />
                         </button>
                       </div>
-                    </li>
+                    </KanbanCardItem>
                   ))}
                 </ul>
 
@@ -340,7 +326,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
                   </button>
                 )}
               </RetroWindow>
-            </div>
+            </KanbanColumnView>
           );
         })}
 
@@ -365,7 +351,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
             </button>
           )}
         </div>
-      </div>
+      </DndContext>
     </PageShell>
   );
 }
