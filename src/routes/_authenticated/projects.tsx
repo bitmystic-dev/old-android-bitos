@@ -81,7 +81,7 @@ function ProjectList() {
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-2">
-                  <Link to="/projects" search={{ project: p.id }} className="bitos-btn">open →</Link>
+                  <Link to="/projects" search={{ project: p.id, board: undefined }} className="bitos-btn">open →</Link>
                   <button
                     onClick={() => { if (confirm(`Delete project "${p.title}"?`)) deleteProject(p.id); }}
                     className="opacity-50 hover:opacity-100 hover:text-destructive transition"
@@ -180,7 +180,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
       title={project.title}
       subtitle={project.description || "kanban.workspace"}
       action={
-        <Link to="/projects" search={{}} className="bitos-btn">
+        <Link to="/projects" search={{ project: undefined, board: undefined }} className="bitos-btn">
           <ArrowLeft className="h-3.5 w-3.5" /> back
         </Link>
       }
