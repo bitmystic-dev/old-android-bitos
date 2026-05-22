@@ -378,12 +378,20 @@ export const useBitStore = create<State>((set, get) => {
 
     saveSettings: (s) => { set((st) => ({ settings: { ...st.settings, ...s } })); persist(); },
 
-    addProject: (p) => {
-      const project: Project = { id: crypto.randomUUID(), createdAt: Date.now(), boards: [defaultBoard()], ...p };
-      set((s) => ({ projects: [project, ...s.projects] })); persist(); return project;
+    addProject: async (p) => {
+      const uid = get().userId;
+      if (!uid) throw new Error("Sign in required");
+      const now = Date.now();
+      const project: Project = { id: crypto.randomUUID(), createdAt: now, updatedAt: now, boards: [defaultBoard()], ...p };
+      await setDoc(kanbanBoardDoc(uid, project.id), project);
+      return project;
     },
     updateProject: (id, patch) => mutateProject(id, (p) => ({ ...p, ...patch })),
-    deleteProject: (id) => { set((s) => ({ projects: s.projects.filter((p) => p.id !== id) })); persist(); },
+    deleteProject: (id) => {
+      const uid = get().userId;
+      if (!uid) return;
+      void deleteDoc(kanbanBoardDoc(uid, id));
+    },
 
     addBoard: (projectId, title) => {
       const board = { ...defaultBoard(), title: title.trim() || "board" };
