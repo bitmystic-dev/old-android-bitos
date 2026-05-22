@@ -18,12 +18,12 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col bitos-window m-3 mr-0 sticky top-3 h-[calc(100vh-1.5rem)] transition-[width] duration-300 overflow-hidden",
+        "hidden md:flex flex-col m-3 mt-5 mr-0 sticky top-5 h-[calc(100vh-2.5rem)] transition-[width] duration-300",
         collapsed ? "w-[72px]" : "w-[240px]"
       )}
     >
       {/* TITLEBAR */}
-      <div className="bitos-titlebar">
+      <div className="bitos-titlebar rounded-t-[var(--radius)] border border-border border-b-0 shadow-window">
         <div className="flex items-center gap-2 min-w-0">
           <span className="bitos-titlebar-dots">
             <span
@@ -58,6 +58,7 @@ export function Sidebar({
         </button>
       </div>
 
+      <div className="bitos-window rounded-t-none flex-1 flex flex-col min-h-0">
       {/* NAVIGATION */}
       <nav className="p-2 flex-1 overflow-y-auto">
         <ul className="space-y-1">
@@ -126,10 +127,11 @@ export function Sidebar({
             </div>
 
             <div className="terminal-result opacity-80 pl-[10px]">
-              Sai Pranav (a.k.a BitMystic)
+              Made by Sai Pranav (BitMystic)
             </div>
           </div>
         )}
+      </div>
       </div>
     </aside>
   );
