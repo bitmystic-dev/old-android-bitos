@@ -48,42 +48,44 @@ function Planner() {
     <PageShell title="planner" subtitle="time is a canvas">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <div className="lg:col-span-2">
-          <RetroWindow title="week.view" subtitle="click any day to add an event">
-            <div className="grid grid-cols-7 gap-2">
-              {days.map((d) => {
-                const dayEvents = events.filter((e) => e.date === d.date);
-                const isToday = d.date === toISODate();
-                return (
-                  <button
-                    key={d.date}
-                    onClick={() => setDraft({ date: d.date })}
-                    className={`text-left rounded-md border p-2 min-h-32 hover:border-primary transition ${isToday ? "border-primary bg-primary/5" : "border-border bg-secondary/40"}`}
-                  >
-                    <div className="flex items-baseline justify-between">
-                      <span className="font-display text-base">{d.label}</span>
-                      <span className={`font-mono text-[10px] ${isToday ? "text-primary" : "opacity-60"}`}>{d.num}</span>
-                    </div>
-                    <div className="mt-2 space-y-1">
-                      {dayEvents.length === 0 && (
-                        <div className="text-[10px] font-mono opacity-30">+ add</div>
-                      )}
-                      {dayEvents.map((e) => (
-                        <div key={e.id} className="group flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-primary text-primary-foreground">
-                          {e.time && <span className="opacity-70 font-mono">{e.time}</span>}
-                          <span className="truncate flex-1">{e.title}</span>
-                          <span
-                            role="button"
-                            onClick={(ev) => { ev.stopPropagation(); deleteEvent(e.id); }}
-                            className="opacity-0 group-hover:opacity-80"
-                          >
-                            <X className="h-3 w-3" />
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </button>
-                );
-              })}
+          <RetroWindow title="week.view" subtitle="tap any day to add an event">
+            <div className="overflow-x-auto no-scrollbar -mx-1 px-1">
+              <div className="grid grid-cols-7 gap-2 min-w-[560px]">
+                {days.map((d) => {
+                  const dayEvents = events.filter((e) => e.date === d.date);
+                  const isToday = d.date === toISODate();
+                  return (
+                    <button
+                      key={d.date}
+                      onClick={() => setDraft({ date: d.date })}
+                      className={`text-left rounded-md border p-2 min-h-32 hover:border-primary transition ${isToday ? "border-primary bg-primary/5" : "border-border bg-secondary/40"}`}
+                    >
+                      <div className="flex items-baseline justify-between">
+                        <span className="font-display text-base">{d.label}</span>
+                        <span className={`font-mono text-[10px] ${isToday ? "text-primary" : "opacity-60"}`}>{d.num}</span>
+                      </div>
+                      <div className="mt-2 space-y-1">
+                        {dayEvents.length === 0 && (
+                          <div className="text-[10px] font-mono opacity-30">+ add</div>
+                        )}
+                        {dayEvents.map((e) => (
+                          <div key={e.id} className="group flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-primary text-primary-foreground">
+                            {e.time && <span className="opacity-70 font-mono">{e.time}</span>}
+                            <span className="truncate flex-1">{e.title}</span>
+                            <span
+                              role="button"
+                              onClick={(ev) => { ev.stopPropagation(); deleteEvent(e.id); }}
+                              className="opacity-60 sm:opacity-0 sm:group-hover:opacity-80"
+                            >
+                              <X className="h-3 w-3" />
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </RetroWindow>
         </div>

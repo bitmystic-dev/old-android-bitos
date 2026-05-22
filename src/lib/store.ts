@@ -126,15 +126,33 @@ let skipNextSnapshot = false;
 
 function userDoc(uid: string) { return doc(getFbDb(), "users", uid); }
 
+let pendingUid: string | null = null;
+let pendingData: Data | null = null;
+
+async function flushNow() {
+  if (!pendingUid || !pendingData) return;
+  const uid = pendingUid, data = pendingData;
+  pendingUid = null; pendingData = null;
+  if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+  skipNextSnapshot = true;
+  try {
+    await setDoc(userDoc(uid), { ...data, updatedAt: Date.now() }, { merge: true });
+  } catch (e) { console.error("[bitos] firestore save failed", e); }
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", () => { void flushNow(); });
+  window.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") void flushNow();
+  });
+}
+
 function scheduleSave(uid: string, data: Data) {
   if (typeof window === "undefined") return;
+  pendingUid = uid;
+  pendingData = data;
   if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    skipNextSnapshot = true;
-    setDoc(userDoc(uid), { ...data, updatedAt: Date.now() }, { merge: true }).catch((e) =>
-      console.error("[bitos] firestore save failed", e),
-    );
-  }, 250);
+  saveTimer = setTimeout(() => { void flushNow(); }, 120);
 }
 
 export const useBitStore = create<State>((set, get) => {
@@ -162,12 +180,15 @@ export const useBitStore = create<State>((set, get) => {
 
     hydrate: (userId) => {
       if (unsub) { try { unsub(); } catch {} unsub = null; }
-      if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+      // flush any pending write from the previous session before tearing down
+      void flushNow();
       if (!userId || typeof window === "undefined") {
         set({ userId: null, syncing: false, loaded: false, ...EMPTY });
         return;
       }
-      set({ userId, syncing: true, loaded: false, ...EMPTY });
+      // Keep current in-memory data until the snapshot resolves — avoids a
+      // race where a write fires against an empty state and wipes Firestore.
+      set({ userId, syncing: true, loaded: false });
       unsub = onSnapshot(
         userDoc(userId),
         (snap) => {

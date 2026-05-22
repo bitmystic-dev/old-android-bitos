@@ -18,21 +18,22 @@
 
 /* For the whole page */
 body {
-  overflow: hidden;        /* Hide scrollbars visually */
-  overflow-y: scroll;      /* Keep vertical scrolling enabled */
+  overflow: hidden;
+  overflow-y: scroll;
 }
+body::-webkit-scrollbar { width: 0px; background: transparent; }
+body { scrollbar-width: none; -ms-overflow-style: none; }
 
-/* Modern browsers (Webkit, like Chrome/Safari) */
-body::-webkit-scrollbar {
-  width: 0px;              /* Remove scrollbar width */
-  background: transparent;  /* Optional: remove background */
+/* ===== Safe area insets (Capacitor / Android / iOS) ===== */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
-
-/* Firefox */
-body {
-  scrollbar-width: none;   /* Hide scrollbar */
-  -ms-overflow-style: none; /* IE/Edge */
-}
+.bitos-safe-top    { padding-top: var(--safe-top); }
+.bitos-safe-bottom { padding-bottom: var(--safe-bottom); }
+.bitos-safe-x      { padding-left: var(--safe-left); padding-right: var(--safe-right); }
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

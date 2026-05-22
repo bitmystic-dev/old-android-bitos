@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Power, LogOut, RefreshCw, Moon } from "lucide-react";
+import { Power, LogOut, RefreshCw } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { getVersion } from "@/lib/version";
@@ -49,7 +49,6 @@ export function PowerMenu() {
           <div className="space-y-0.5">
             <Item icon={RefreshCw} label="Reload BitOS" onClick={() => window.location.reload()} />
             <div className="my-1 h-px bg-border" />
-            <Item icon={Moon} label="Lock (Sign Out)" onClick={async () => { await signOut(); navigate({ to: "/login" }); }} />
             <Item icon={LogOut} label="Sign Out" danger onClick={async () => { await signOut(); navigate({ to: "/login" }); }} />
           </div>
           <div className="mt-2 px-2 py-1 text-[10px] font-mono opacity-60 border-t border-border pt-2">

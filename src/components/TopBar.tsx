@@ -22,6 +22,10 @@ export function TopBar({ onMobileMenu }: { onMobileMenu: () => void }) {
         <Menu className="h-4 w-4" />
       </button>
 
+      <span className="md:hidden font-display text-sm tracking-widest text-primary shrink-0 pr-1">
+        BitOS://
+      </span>
+
       <div className="flex-1 min-w-0">
         <GlobalSearch />
       </div>

@@ -8,10 +8,11 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex w-full overflow-x-hidden">
+    <div
+      className="min-h-screen flex w-full overflow-x-hidden bitos-safe-top bitos-safe-x bitos-safe-bottom"
+    >
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
       <div className="flex-1 flex flex-col min-w-0">
-        {/* hide topbar on mobile while drawer is open to avoid overlap */}
         <div className={mobileOpen ? "hidden md:block" : "block"}>
           <TopBar onMobileMenu={() => setMobileOpen(true)} />
         </div>
