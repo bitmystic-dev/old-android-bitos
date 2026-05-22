@@ -166,9 +166,7 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
   const [newColTitle, setNewColTitle] = useState("");
   const [showAddCol, setShowAddCol] = useState(false);
   const [movingCardId, setMovingCardId] = useState<string | null>(null); // mobile tap-to-move
-
-  // HTML5 drag state for card target index hint
-  const [dragOver, setDragOver] = useState<{ col: string; index: number } | null>(null);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
   if (!board) return null;
 
@@ -182,6 +180,15 @@ function ProjectDetail({ projectId, boardId }: { projectId: string; boardId?: st
     if (!newColTitle.trim()) return;
     addColumn(projectId, board.id, newColTitle.trim());
     setNewColTitle(""); setShowAddCol(false);
+  };
+
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over) return;
+    const target = over.data.current as { colId?: string; index?: number } | undefined;
+    if (!target?.colId) return;
+    const fallback = board.columns.find((c) => c.id === target.colId)?.cardIds.length ?? 0;
+    moveCard(projectId, board.id, String(active.id), target.colId, target.index ?? fallback);
+    setMovingCardId(null);
   };
 
   return (
