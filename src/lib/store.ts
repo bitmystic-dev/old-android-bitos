@@ -1,9 +1,18 @@
 /**
  * BitOS shared data store — Firestore-backed, real-time per user.
- * users/{uid} holds {tasks, habits, events, notes, settings, projects}.
+ * users/{uid} holds shared widgets; habits and Kanban use realtime subcollections.
  */
 import { create } from "zustand";
-import { doc, onSnapshot, setDoc, type Unsubscribe } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  setDoc,
+  type Unsubscribe,
+} from "firebase/firestore";
 import { getFbDb } from "./firebase";
 
 export type Priority = "low" | "medium" | "high" | "na";
@@ -23,10 +32,12 @@ export type Task = {
 
 export type Habit = {
   id: string;
-  name: string;
+  title: string;
+  completedDays: string[];
+  streak: number;
   color?: string;
   createdAt: number;
-  history: Record<string, boolean>;
+  updatedAt: number;
 };
 
 export type PlannerEvent = {
@@ -63,6 +74,7 @@ export type Project = {
   description?: string;
   color?: string;
   createdAt: number;
+  updatedAt?: number;
   boards: KanbanBoard[];
 };
 
@@ -91,9 +103,9 @@ type State = Data & {
   deleteTask: (id: string) => void;
   toggleTask: (id: string) => void;
 
-  addHabit: (name: string, color?: string) => Habit;
+  addHabit: (title: string, color?: string) => Promise<Habit>;
   deleteHabit: (id: string) => void;
-  toggleHabitDay: (id: string, isoDate: string) => void;
+  toggleHabitDay: (id: string, isoDate: string) => Promise<void>;
 
   addEvent: (e: Omit<PlannerEvent, "id">) => PlannerEvent;
   deleteEvent: (id: string) => void;
@@ -103,7 +115,7 @@ type State = Data & {
   saveSettings: (s: BitSettings) => void;
 
   // projects / kanban
-  addProject: (p: Omit<Project, "id" | "createdAt" | "boards">) => Project;
+  addProject: (p: Omit<Project, "id" | "createdAt" | "updatedAt" | "boards">) => Promise<Project>;
   updateProject: (id: string, patch: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   addBoard: (projectId: string, title: string) => KanbanBoard | null;
