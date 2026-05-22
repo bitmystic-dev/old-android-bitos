@@ -1,5 +1,10 @@
 #  BitOS Android (Building Instructions)
 
+Use this to update only the changed files in the directory (faster building process)
+
+```bash
+git pull
+```
 ---
 
 # 1. Download / Clone the GitHub Repo
