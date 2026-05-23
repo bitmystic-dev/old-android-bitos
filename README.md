@@ -68,7 +68,7 @@ Especially check:
 
 # 5. Convert Website Into Android App (Capacitor)
 
-Install Capacitor:
+Install Capacitor (Do this always after using git pull):
 
 ```bash
 npm install @capacitor/core @capacitor/cli
