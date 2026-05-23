@@ -6,7 +6,7 @@ import { getVersion } from "@/lib/version";
 
 export function PowerMenu() {
   const [open, setOpen] = useState(false);
-  const [version, setVersion] = useState("v0.2.0");
+  const [version, setVersion] = useState("");
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { signOut } = useAuth();
@@ -52,7 +52,7 @@ export function PowerMenu() {
             <Item icon={LogOut} label="Sign Out" danger onClick={async () => { await signOut(); navigate({ to: "/login" }); }} />
           </div>
           <div className="mt-2 px-2 py-1 text-[10px] font-mono opacity-60 border-t border-border pt-2">
-            BitOS {version}
+            BitOS v{version || "—"}
           </div>
         </div>
       )}
