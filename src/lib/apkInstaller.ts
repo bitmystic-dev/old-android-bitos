@@ -39,7 +39,7 @@ export async function downloadAndInstallApk(
   }
 
   // Concatenate and base64-encode for Filesystem.writeFile.
-  const blob = new Blob(chunks);
+  const blob = new Blob(chunks as BlobPart[]);
   const base64 = await blobToBase64(blob);
   const fileName = `bitos-update-${Date.now()}.apk`;
 
