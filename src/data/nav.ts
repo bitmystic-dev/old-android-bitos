@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, CalendarCheck, Activity, BookOpen, FolderKanban,
-  Code2, Sparkles, Settings as SettingsIcon,
+  Code2, Sparkles, Settings as SettingsIcon, Music,
 } from "lucide-react";
 
 export type NavItem = {
@@ -17,7 +17,9 @@ export const NAV: NavItem[] = [
   { to: "/habits",      label: "Habits",      icon: Activity,        hint: "streaks" },
   { to: "/syllabus",    label: "Syllabus",    icon: BookOpen,        hint: "study" },
   { to: "/projects",    label: "Projects",    icon: FolderKanban,    hint: "kanban" },
+  { to: "/bitmusic",    label: "BitMusic",    icon: Music,           hint: "bitmusic.exe" },
   { to: "/code",        label: "Code",        icon: Code2,           hint: "workspace" },
   { to: "/inspiration", label: "Inspiration", icon: Sparkles,        hint: "muse", soon: true },
   { to: "/settings",    label: "Settings",    icon: SettingsIcon,    hint: "config.sys" },
 ];
+
