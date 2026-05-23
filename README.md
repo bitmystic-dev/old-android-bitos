@@ -12,7 +12,7 @@ git pull
 On your PC:
 
 ```bash
-git clone YOUR_GITHUB_REPO_URL
+git clone git@github.com:bitmystic-dev/bitos-android-app.git
 cd your-project
 ```
 
