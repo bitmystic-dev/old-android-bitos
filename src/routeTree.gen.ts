@@ -20,6 +20,7 @@ import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedInspirationRouteImport } from './routes/_authenticated/inspiration'
 import { Route as AuthenticatedHabitsRouteImport } from './routes/_authenticated/habits'
 import { Route as AuthenticatedCodeRouteImport } from './routes/_authenticated/code'
+import { Route as AuthenticatedBitmusicRouteImport } from './routes/_authenticated/bitmusic'
 
 const SudoRoute = SudoRouteImport.update({
   id: '/sudo',
@@ -76,11 +77,17 @@ const AuthenticatedCodeRoute = AuthenticatedCodeRouteImport.update({
   path: '/code',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedBitmusicRoute = AuthenticatedBitmusicRouteImport.update({
+  id: '/bitmusic',
+  path: '/bitmusic',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
   '/sudo': typeof SudoRoute
+  '/bitmusic': typeof AuthenticatedBitmusicRoute
   '/code': typeof AuthenticatedCodeRoute
   '/habits': typeof AuthenticatedHabitsRoute
   '/inspiration': typeof AuthenticatedInspirationRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/sudo': typeof SudoRoute
+  '/bitmusic': typeof AuthenticatedBitmusicRoute
   '/code': typeof AuthenticatedCodeRoute
   '/habits': typeof AuthenticatedHabitsRoute
   '/inspiration': typeof AuthenticatedInspirationRoute
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/sudo': typeof SudoRoute
+  '/_authenticated/bitmusic': typeof AuthenticatedBitmusicRoute
   '/_authenticated/code': typeof AuthenticatedCodeRoute
   '/_authenticated/habits': typeof AuthenticatedHabitsRoute
   '/_authenticated/inspiration': typeof AuthenticatedInspirationRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/sudo'
+    | '/bitmusic'
     | '/code'
     | '/habits'
     | '/inspiration'
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/sudo'
+    | '/bitmusic'
     | '/code'
     | '/habits'
     | '/inspiration'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/sudo'
+    | '/_authenticated/bitmusic'
     | '/_authenticated/code'
     | '/_authenticated/habits'
     | '/_authenticated/inspiration'
@@ -240,10 +252,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCodeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/bitmusic': {
+      id: '/_authenticated/bitmusic'
+      path: '/bitmusic'
+      fullPath: '/bitmusic'
+      preLoaderRoute: typeof AuthenticatedBitmusicRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedBitmusicRoute: typeof AuthenticatedBitmusicRoute
   AuthenticatedCodeRoute: typeof AuthenticatedCodeRoute
   AuthenticatedHabitsRoute: typeof AuthenticatedHabitsRoute
   AuthenticatedInspirationRoute: typeof AuthenticatedInspirationRoute
@@ -255,6 +275,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedBitmusicRoute: AuthenticatedBitmusicRoute,
   AuthenticatedCodeRoute: AuthenticatedCodeRoute,
   AuthenticatedHabitsRoute: AuthenticatedHabitsRoute,
   AuthenticatedInspirationRoute: AuthenticatedInspirationRoute,
